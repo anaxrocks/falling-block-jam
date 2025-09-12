@@ -5,10 +5,12 @@ using UnityEngine;
 public enum BlockType
 {
     Empty = 0,
-    Red = 1,
-    Blue = 2,
-    Green = 3,
-    Yellow = 4,
+    Buffer = 1,
+    Red = 2,
+    Magenta = 3,
+    Green = 4,
+    Yellow = 5,
+    Blue = 6,
     // Bomb = 5
 }
 
@@ -24,45 +26,45 @@ public class BlockData
         blockType = type;
     }
 }
-public class Block : MonoBehaviour
-{
-    public int gridX, gridY;
-    public BlockType blockType;
-    public GameBoard gameBoard;
-    private Rigidbody2D rb;
-    private bool hasLanded = false;
+// public class Block : MonoBehaviour
+// {
+//     public int gridX, gridY;
+//     public BlockType blockType;
+//     public GameBoard gameBoard;
+//     private Rigidbody2D rb;
+//     private bool hasLanded = false;
 
-    void Awake()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
+//     void Awake()
+//     {
+//         rb = GetComponent<Rigidbody2D>();
+//     }
 
-    public void Initialize(int x, int y, BlockType type, GameBoard board)
-    {
-        gridX = x;
-        gridY = y;
-        blockType = type;
-        gameBoard = board;
-    }
-    public void SetGridPosition(int x, int y)
-    {
-        gridX = x;
-        gridY = y;
-    }
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!hasLanded && rb.linearVelocity.y <= 0.1f)
-        {
-            hasLanded = true;
-            // Snap to grid
-            Vector3Int cellPos = gameBoard.WorldToCell(transform.position);
-            transform.position = gameBoard.CellToWorld(cellPos);
+//     public void Initialize(int x, int y, BlockType type, GameBoard board)
+//     {
+//         gridX = x;
+//         gridY = y;
+//         blockType = type;
+//         gameBoard = board;
+//     }
+//     public void SetGridPosition(int x, int y)
+//     {
+//         gridX = x;
+//         gridY = y;
+//     }
+//     void OnCollisionEnter2D(Collision2D collision)
+//     {
+//         if (!hasLanded && rb.linearVelocity.y <= 0.1f)
+//         {
+//             hasLanded = true;
+//             // Snap to grid
+//             Vector3Int cellPos = gameBoard.WorldToCell(transform.position);
+//             transform.position = gameBoard.CellToWorld(cellPos);
             
-            // Update grid position
-            gridX = cellPos.x;
-            gridY = cellPos.y;
+//             // Update grid position
+//             gridX = cellPos.x;
+//             gridY = cellPos.y;
             
-            rb.isKinematic = true; // Stop physics once landed
-        }
-    }
-}
+//             rb.isKinematic = true; // Stop physics once landed
+//         }
+//     }
+// }
