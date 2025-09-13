@@ -62,12 +62,12 @@ public class GameBoardManager : MonoBehaviour
 
     void DestroyGameBoard()
     {
-        if (activeBoards.Count >= 1)
+        if (activeBoards.Count > 1)
         {
             GameBoard gb = activeBoards.Dequeue();
-            Destroy(gb.gameObject, 0.1f);
             curBoard = activeBoards.Peek();
             player.updateCurBoard(curBoard);
+            Destroy(gb.gameObject, 0.1f);
             destroying = false;
             created = false;
         }
