@@ -49,17 +49,17 @@ public class GameBoard : MonoBehaviour
 
     void Update()
     {
-        // Handle mouse clicks on tilemap
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int cellPos = WorldToCell(mousePos);
+        // // Handle mouse clicks on tilemap
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //     Vector3Int cellPos = WorldToCell(mousePos);
             
-            if (IsValidPosition(cellPos.x, cellPos.y))
-            {
-                DestroyConnectedBlocks(cellPos.x, cellPos.y);
-            }
-        }
+        //     if (IsValidPosition(cellPos.x, cellPos.y))
+        //     {
+        //         DestroyConnectedBlocks(cellPos.x, cellPos.y);
+        //     }
+        // }
     }
     
     void InitializeBoard()
