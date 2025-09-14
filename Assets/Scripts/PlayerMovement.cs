@@ -9,32 +9,37 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _fallSpeed = 8f;
     [SerializeField] private float _continuousMovementDelay = 0.2f;
     [SerializeField] private float _autoJumpDelay = 0.4f; // Delay before auto-jumping
-    
+
     [Header("References")]
-    [SerializeField] private GameBoard _gameBoard;
-    
+    private GameBoard _gameBoard;
+    private GameBoardManager gameBoardManager;
+
     private const float GRID_OFFSET = 0.25f;
     private const float MOVEMENT_THRESHOLD = 0.5f;
     private const float POSITION_TOLERANCE = 0.01f;
-    
+
     private Vector3Int _currentGridPosition;
     private Vector3 _targetWorldPosition;
     private bool _isMoving = false;
-    
+
     // Movement state
     private float _lastMoveTime = 0f;
     private Vector3Int _lastMoveDirection = Vector3Int.zero;
     private bool _isContinuousMovement = false;
-    
+
     // Auto-jump state
     private float _blockHitTime = 0f;
     private Vector3Int _blockedDirection = Vector3Int.zero;
     private bool _isWaitingForAutoJump = false;
+    //Tool held
+    public Tool tool = Tool.None;
 
     void Awake()
     {
-        if (_gameBoard == null)
-            _gameBoard = GameObject.FindFirstObjectByType<GameBoard>();
+        if (gameBoardManager == null)
+            gameBoardManager = FindFirstObjectByType<GameBoardManager>();
+        // if (_gameBoard == null)
+        //         _gameBoard = GameObject.FindFirstObjectByType<GameBoard>();
     }
 
     void Start()
@@ -52,9 +57,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void InitializePosition()
     {
+        _gameBoard = gameBoardManager.curBoard;
         Vector3 pos = transform.position;
         _currentGridPosition = _gameBoard.WorldToCell(new Vector3(pos.x - GRID_OFFSET, pos.y - GRID_OFFSET, 0));
-        
+
         Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
         _targetWorldPosition = new Vector3(corner.x + GRID_OFFSET, corner.y + GRID_OFFSET, 0);
         transform.position = _targetWorldPosition;
@@ -72,23 +78,23 @@ public class PlayerMovement : MonoBehaviour
     private Vector3Int GetAttackDirection()
     {
         Vector2 input = InputManager.movement;
-        
+
         // Check movement input first
         if (input.magnitude > MOVEMENT_THRESHOLD)
         {
             return GetDirectionFromInput(input);
         }
-        
+
         // Use mouse/touch position
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
         Vector3 worldDirection = mousePos - transform.position;
-        
+
         if (Mathf.Abs(worldDirection.x) > MOVEMENT_THRESHOLD || Mathf.Abs(worldDirection.y) > MOVEMENT_THRESHOLD)
         {
             return GetDirectionFromVector(worldDirection);
         }
-        
+
         return Vector3Int.down; // Default
     }
 
@@ -109,12 +115,12 @@ public class PlayerMovement : MonoBehaviour
     void BreakBlock(int x, int y)
     {
         if (!_gameBoard.IsValidPosition(x, y)) return;
-        
+
         BlockData blockData = _gameBoard.GetBlockData(x, y);
         if (blockData != null && blockData.blockType != BlockType.Empty && blockData.blockType != BlockType.Buffer)
         {
             _gameBoard.DestroyConnectedBlocks(x, y);
-            
+
             // Reset auto-jump waiting if we break a block
             if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
                 (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
@@ -122,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
                 _isWaitingForAutoJump = false;
                 _blockedDirection = Vector3Int.zero;
             }
-            
+
             Debug.Log($"Breaking block at ({x}, {y}) of type: {blockData.blockType}");
         }
     }
@@ -130,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
     void HandleInput()
     {
         Vector2 input = InputManager.movement;
-        
+
         if (input.magnitude > MOVEMENT_THRESHOLD)
         {
             Vector3Int direction = GetDirectionFromInput(input);
@@ -140,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
         {
             StopContinuousMovement();
         }
-        
+
         // Handle auto-jump timing
         CheckAutoJump();
     }
@@ -149,7 +155,7 @@ public class PlayerMovement : MonoBehaviour
     {
         bool isFirstMove = !_isContinuousMovement || _lastMoveDirection != direction;
         bool canMove = !_isMoving && (isFirstMove || Time.time - _lastMoveTime >= _continuousMovementDelay);
-        
+
         if (canMove)
         {
             if (TryMove(direction))
@@ -162,7 +168,7 @@ public class PlayerMovement : MonoBehaviour
                 // Blocked horizontal movement - start auto-jump timer
                 StartAutoJumpTimer(direction);
             }
-            
+
             _lastMoveTime = Time.time;
             _lastMoveDirection = direction;
             _isContinuousMovement = true;
@@ -213,9 +219,9 @@ public class PlayerMovement : MonoBehaviour
     void HandleMovement()
     {
         if (!_isMoving) return;
-        
+
         transform.position = Vector3.MoveTowards(transform.position, _targetWorldPosition, _moveSpeed * Time.deltaTime);
-        
+
         if (Vector3.Distance(transform.position, _targetWorldPosition) < POSITION_TOLERANCE)
         {
             transform.position = _targetWorldPosition;
@@ -226,9 +232,9 @@ public class PlayerMovement : MonoBehaviour
     void CheckGravity()
     {
         if (_isMoving) return;
-        
+
         Vector3Int belowPos = _currentGridPosition + Vector3Int.down;
-        
+
         if (IsEmptySpace(belowPos))
         {
             MoveToPosition(belowPos);
@@ -239,7 +245,7 @@ public class PlayerMovement : MonoBehaviour
     private bool IsEmptySpace(Vector3Int position)
     {
         if (!_gameBoard.IsValidPosition(position.x, position.y)) return false;
-        
+
         BlockData blockData = _gameBoard.GetBlockData(position.x, position.y);
         return blockData != null && blockData.blockType == BlockType.Empty;
     }
@@ -249,13 +255,13 @@ public class PlayerMovement : MonoBehaviour
         while (_isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, _targetWorldPosition, _fallSpeed * Time.deltaTime);
-            
+
             if (Vector3.Distance(transform.position, _targetWorldPosition) < POSITION_TOLERANCE)
             {
                 transform.position = _targetWorldPosition;
                 _isMoving = false;
             }
-            
+
             yield return null;
         }
     }
@@ -263,30 +269,30 @@ public class PlayerMovement : MonoBehaviour
     bool TryMove(Vector3Int direction)
     {
         Vector3Int newPos = _currentGridPosition + direction;
-        
+
         if (IsEmptySpace(newPos))
         {
             MoveToPosition(newPos);
             return true;
         }
-        
+
         return false;
     }
 
     bool TryAutoJump(Vector3Int horizontalDirection)
     {
         if (!IsHorizontalDirection(horizontalDirection)) return false;
-        
+
         Vector3Int spaceAbovePlayer = _currentGridPosition + Vector3Int.up;
         Vector3Int jumpTarget = _currentGridPosition + horizontalDirection + Vector3Int.up;
-        
+
         // Check if there's space above player and the jump target is empty
         if (IsEmptySpace(spaceAbovePlayer) && IsEmptySpace(jumpTarget))
         {
             MoveToPosition(jumpTarget);
             return true;
         }
-        
+
         return false;
     }
 
@@ -301,5 +307,9 @@ public class PlayerMovement : MonoBehaviour
     public Vector3Int GetCurrentGridPosition()
     {
         return _currentGridPosition;
+    }
+    public void updateCurBoard(GameBoard gb)
+    {
+        _gameBoard = gb;
     }
 }

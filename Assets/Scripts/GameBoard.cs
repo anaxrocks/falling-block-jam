@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 /* Generates a gameboard of size boardwidth * boardheight. For the intended use, multiple gameboards should be
    stacked on top for the appearance of an infinite board.
@@ -20,18 +21,21 @@ public class GameBoard : MonoBehaviour
     public int boardHeight = 12; //total height of board
     public int bufferHeight = 5; //buffer into the boardheight
     private int levelHeight; //boardHeight - bufferHeight
+    public float chanceOfHardBlock = 0.08f;
     // public float blockSize = 1f;
     public float fallSpeed = 2f;
-    public bool usePhysicsGravity;
 
     [Header("Block Tiles")]
     public TileBase[] blockTiles; // Different colored block tiles
-    public TileBase emptyTile; // Null or transparent tile for empty spaces
+    public TileBase bufferTile; // Null or transparent tile for empty spaces
+    public TileBase[] hardTiles; //3 sprites of hard blocks
 
     private BlockData[,] blockData;
     private bool isProcessingGravity = false;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public bool bufferDestroyed = false;
+    private int numNonBreakableBlocks = 3;
+    [Header("Player settings")]
+    private PlayerMovement player;
     void Awake()
     {
         levelHeight = boardHeight - bufferHeight;
@@ -39,14 +43,8 @@ public class GameBoard : MonoBehaviour
         tilemap = GetComponentInChildren<Tilemap>();
         tilemapRenderer = GetComponentInChildren<TilemapRenderer>();
         tilemapCollider = GetComponentInChildren<TilemapCollider2D>();
+        player = FindFirstObjectByType<PlayerMovement>();
     }
-
-    void Start()
-    {
-        InitializeBoard();
-        GenerateInitialBlocks();
-    }
-
     void Update()
     {
         // // Handle mouse clicks on tilemap
@@ -54,22 +52,27 @@ public class GameBoard : MonoBehaviour
         // {
         //     Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //     Vector3Int cellPos = WorldToCell(mousePos);
-            
+
         //     if (IsValidPosition(cellPos.x, cellPos.y))
         //     {
         //         DestroyConnectedBlocks(cellPos.x, cellPos.y);
         //     }
         // }
     }
-    
-    void InitializeBoard()
+    public void Init()
     {
-        blockData = new BlockData[boardWidth, boardHeight + bufferHeight];
+        InitializeBoard();
+        GenerateInitialBlocks();
+    }
+
+    public void InitializeBoard()
+    {
+        blockData = new BlockData[boardWidth, boardHeight];
 
         // Initialize block data array
         for (int x = 0; x < boardWidth; x++)
         {
-            for (int y = 0; y < boardHeight + bufferHeight; y++)
+            for (int y = 0; y < boardHeight; y++)
             {
                 blockData[x, y] = new BlockData(BlockType.Empty);
             }
@@ -86,8 +89,12 @@ public class GameBoard : MonoBehaviour
         {
             for (int y = 0; y > -levelHeight; y--)
             {
-                BlockType randomType = (BlockType)Random.Range(2, System.Enum.GetValues(typeof(BlockType)).Length);
-                CreateBlock(x, y, randomType);
+                BlockType randomType = (BlockType)UnityEngine.Random.Range(numNonBreakableBlocks, System.Enum.GetValues(typeof(BlockType)).Length);
+                if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfHardBlock)
+                {
+                    CreateBlock(x, y, BlockType.Hard);
+                }
+                else CreateBlock(x, y, randomType);
             }
         }
         for (int x = 0; x < boardWidth; x++)
@@ -108,12 +115,12 @@ public class GameBoard : MonoBehaviour
 
         if (blockType == BlockType.Buffer)
         {
-            tilemap.SetTile(position, emptyTile);
+            tilemap.SetTile(position, bufferTile);
             blockData[x, -y] = new BlockData(BlockType.Buffer);
         }
         else
         {
-            TileBase tileToPlace = blockTiles[(int)blockType - 2];
+            TileBase tileToPlace = blockTiles[(int)blockType - numNonBreakableBlocks + 1]; //+1 for the Hard Block
             tilemap.SetTile(position, tileToPlace);
             blockData[x, -y] = new BlockData(blockType);
         }
@@ -132,35 +139,50 @@ public class GameBoard : MonoBehaviour
             return blockData[x, -y];
         return null;
     }
-    
+
     public Vector3Int WorldToCell(Vector3 worldPos)
     {
         return grid.WorldToCell(worldPos);
     }
-    
+
+    public int getLevelHeight()
+    {
+        return levelHeight;
+    }
+
     public Vector3 CellToWorld(Vector3Int cellPos)
     {
         return grid.CellToWorld(cellPos);
     }
-    
+
     public void DestroyBlock(int x, int y)
     {
         if (!IsValidPosition(x, y)) return;
 
         Vector3Int position = new Vector3Int(x, y, 0);
         tilemap.SetTile(position, null);
+        if (blockData[x, -y].blockType == BlockType.Buffer)
+        {
+            bufferDestroyed = true;
+        }
         blockData[x, -y] = new BlockData(BlockType.Empty);
     }
-    
+
     //Destroy all blocks connected to the block x,y including the chosen block
     public void DestroyConnectedBlocks(int x, int y)
     {
         if (!IsValidPosition(x, y)) return;
 
         BlockData targetBlock = blockData[x, -y];
-        if (targetBlock.blockType == BlockType.Empty || targetBlock.blockType == BlockType.Buffer) return;
-
         BlockType targetType = targetBlock.blockType;
+
+        if (targetType == BlockType.Empty) return;
+        if (targetType == BlockType.Hard)
+        {
+            TryDamageHardBlock(targetBlock, x, y);
+            return;
+        }
+
         HashSet<Vector2Int> connectedBlocks = new HashSet<Vector2Int>();
         Queue<Vector2Int> toCheck = new Queue<Vector2Int>();
 
@@ -196,21 +218,21 @@ public class GameBoard : MonoBehaviour
             StartCoroutine(ProcessGravity());
         }
     }
-    
+
     // Creates a list of all the falling components
     private List<List<Vector2Int>> FindAllFallingComponents()
     {
         List<List<Vector2Int>> components = new List<List<Vector2Int>>();
         HashSet<Vector2Int> processedPositions = new HashSet<Vector2Int>();
-        
+
         // Check all positions for unprocessed blocks (from top to bottom)
         for (int y = 0; y > -boardHeight; y--)
         {
             for (int x = 0; x < boardWidth; x++)
             {
                 Vector2Int pos = new Vector2Int(x, y);
-                if (!processedPositions.Contains(pos) && 
-                    blockData[x, -y].blockType != BlockType.Empty && 
+                if (!processedPositions.Contains(pos) &&
+                    blockData[x, -y].blockType != BlockType.Empty &&
                     blockData[x, -y].blockType != BlockType.Buffer)
                 {
                     // Find connected component starting from this position
@@ -218,7 +240,7 @@ public class GameBoard : MonoBehaviour
                     if (component.Count > 0)
                     {
                         components.Add(component);
-                        
+
                         // Mark all positions in this component as processed
                         foreach (Vector2Int componentPos in component)
                         {
@@ -228,7 +250,7 @@ public class GameBoard : MonoBehaviour
                 }
             }
         }
-        
+
         return components;
     }
 
@@ -237,27 +259,27 @@ public class GameBoard : MonoBehaviour
         List<Vector2Int> component = new List<Vector2Int>();
         HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
         Queue<Vector2Int> toCheck = new Queue<Vector2Int>();
-        
+
         toCheck.Enqueue(new Vector2Int(startX, startY));
         visited.Add(new Vector2Int(startX, startY));
-        
+
         while (toCheck.Count > 0)
         {
             Vector2Int current = toCheck.Dequeue();
             component.Add(current);
-            
-            Vector2Int[] directions = { 
+
+            Vector2Int[] directions = {
                 new Vector2Int(0, 1),   // up
                 new Vector2Int(0, -1),  // down
                 new Vector2Int(-1, 0),  // left
                 new Vector2Int(1, 0)    // right
             };
-            
+
             foreach (Vector2Int dir in directions)
             {
                 Vector2Int neighbor = current + dir;
-                
-                if (IsValidPosition(neighbor.x, neighbor.y) && 
+
+                if (IsValidPosition(neighbor.x, neighbor.y) &&
                     !visited.Contains(neighbor) &&
                     blockData[neighbor.x, -neighbor.y].blockType == targetType)
                 {
@@ -266,22 +288,23 @@ public class GameBoard : MonoBehaviour
                 }
             }
         }
-        
+
         return component;
     }
 
     private bool CanComponentFall(List<Vector2Int> component)
     {
-        if (component.Count == 0) return false;        
-        // Check each block in the component for what's directly below it
+        if (component.Count == 0) return false;
+        // Check directly below
         foreach (Vector2Int pos in component)
         {
+            if (blockData[pos.x, -pos.y].blockType == BlockType.Hard) return false;
             Vector2Int posBelow = new Vector2Int(pos.x, pos.y - 1);
             if (!IsValidPosition(posBelow.x, posBelow.y))
             {
                 return false;
             }
-            
+
             // Check if position below is occupied by a block not in this component
             if (blockData[posBelow.x, -posBelow.y].blockType != BlockType.Empty)
             {
@@ -295,7 +318,7 @@ public class GameBoard : MonoBehaviour
                         break;
                     }
                 }
-                
+
                 if (!isPartOfComponent)
                 {
                     return false;
@@ -309,24 +332,24 @@ public class GameBoard : MonoBehaviour
     {
         // Sort component by Y position (bottom to top) to avoid overwriting
         component.Sort((a, b) => a.y.CompareTo(b.y));
-        
+
         // Store the block data for each position
         Dictionary<Vector2Int, BlockData> componentData = new Dictionary<Vector2Int, BlockData>();
         Dictionary<Vector2Int, TileBase> componentTiles = new Dictionary<Vector2Int, TileBase>();
-        
+
         foreach (Vector2Int pos in component)
         {
             componentData[pos] = blockData[pos.x, -pos.y];
             componentTiles[pos] = tilemap.GetTile(new Vector3Int(pos.x, pos.y, 0));
         }
-        
+
         // Clear original positions
         foreach (Vector2Int pos in component)
         {
             tilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), null);
             blockData[pos.x, -pos.y] = new BlockData(BlockType.Empty);
         }
-        
+
         // Place blocks in new positions (one row down)
         foreach (Vector2Int pos in component)
         {
@@ -335,12 +358,12 @@ public class GameBoard : MonoBehaviour
             blockData[newPos.x, -newPos.y] = componentData[pos];
         }
     }
-    
+
     public IEnumerator ProcessGravity()
     {
-        if (isProcessingGravity || usePhysicsGravity) yield break;
+        if (isProcessingGravity) yield break;
         isProcessingGravity = true;
-        
+
         bool blocksMovedThisPass;
         do
         {
@@ -355,14 +378,79 @@ public class GameBoard : MonoBehaviour
                     blocksMovedThisPass = true;
                 }
             }
-            
+
             if (blocksMovedThisPass)
             {
                 yield return new WaitForSeconds(1f / fallSpeed);
             }
-            
+
         } while (blocksMovedThisPass);
-        
+
         isProcessingGravity = false;
+    }
+    //MARK: Player helpers
+    public void ClearBlocksAbove(int x, int y)
+    {
+        if (!IsValidPosition(x, y)) return;
+        for (int clearY = y; clearY <= 0; clearY++)
+        {
+            if (IsValidPosition(x, clearY))
+            {
+                // Only clear if there's actually a block there
+                if (blockData[x, -clearY].blockType != BlockType.Empty)
+                {
+                    Vector3Int position = new Vector3Int(x, clearY, 0);
+                    tilemap.SetTile(position, null);
+                    blockData[x, -clearY] = new BlockData(BlockType.Empty);
+                }
+            }
+        }
+    }
+    private void DestroyThree(int x, int y)
+    {
+        if (!IsValidPosition(x, y)) return;
+        if (player.tool != Tool.Hammer) return;
+
+        BlockData targetBlock = blockData[x, -y];
+        BlockType targetType = targetBlock.blockType;
+
+        if (targetType == BlockType.Empty) return;
+
+        for (int dx = x - 1; dx <= x + 1; x++)
+        {
+            for (int dy = y; y >= y - 2; y--)
+            {
+                if (IsValidPosition(dx, dy))
+                {
+                    BlockData block = blockData[dx, -dy];
+                    //If block hard still only do one damage
+                    if (block.blockType == BlockType.Hard)
+                    {
+                        TryDamageHardBlock(block, dx, dy);
+                    }
+                    else if (block.blockType != BlockType.Empty)
+                    {
+                        DestroyBlock(dx, dx);
+
+                    }
+                }
+            }
+        }
+        StartCoroutine(ProcessGravity());
+    }
+
+    void TryDamageHardBlock(BlockData block, int x, int y)
+    {
+        if (block.blockType != BlockType.Hard) return;
+        block.Damage();
+        if (player.tool == Tool.Pickaxe || block.Health() <= 0)
+        {
+            DestroyBlock(x, y);
+        }
+        else
+        {
+            Vector3Int position = new Vector3Int(x, y, 0);
+            tilemap.SetTile(position, hardTiles[hardTiles.Length - block.Health()]);
+        }
     }
 }
