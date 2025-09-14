@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &750961166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,8 +405,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 3
   _fallSpeed: 2
-  offset: 0.25
-  gameBoardManager: {fileID: 1363414900}
+  _continuousMovementDelay: 0.2
+  _autoJumpDelay: 0.4
+  tool: 0
 --- !u!212 &1255495311
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -526,6 +527,34 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: blockTiles.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 41ce1b10866f34b7ea35960f6792ad4d, type: 2}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 9cc77652689c64b69ba13fd7a5bf1a5f, type: 2}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5460e01eeea08453e8cd9e52af8aa617, type: 2}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 682c27830304c41849658dacd35651a9, type: 2}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 97fd3d43291944b46a52f6991e5dbb75, type: 2}
+    - target: {fileID: 2089347791326757847, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+      propertyPath: 'blockTiles.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7b633717106ee4bb4baaa302da4ebf7b, type: 2}
     - target: {fileID: 4686460017704824138, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

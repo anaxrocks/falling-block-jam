@@ -55,6 +55,7 @@ public class GameBoardManager : MonoBehaviour
         newGB.transform.parent = this.transform;
 
         GameBoard newBoard = newGB.GetComponent<GameBoard>();
+        newBoard.Init();
         boardCounter++;
         activeBoards.Enqueue(newBoard);
         return newBoard;
@@ -72,7 +73,7 @@ public class GameBoardManager : MonoBehaviour
             created = false;
         }
     }
-
+    //Next board loads in after player reaches a threshold
     void CheckForNewBoardLoading()
     {
         if (playerTransform == null || activeBoards.Count == 0 || created) return;
@@ -90,6 +91,7 @@ public class GameBoardManager : MonoBehaviour
         }
     }
 
+    //Board gets destoryed once player breaks buffer
     void CheckforDestroyBoard()
     {
         if (activeBoards.Count <= 1) return;

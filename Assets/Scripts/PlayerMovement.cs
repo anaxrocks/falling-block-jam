@@ -31,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
     private float _blockHitTime = 0f;
     private Vector3Int _blockedDirection = Vector3Int.zero;
     private bool _isWaitingForAutoJump = false;
+    //Tool held
+    public Tool tool = Tool.None;
 
     void Awake()
     {

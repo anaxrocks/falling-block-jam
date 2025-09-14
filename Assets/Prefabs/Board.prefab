@@ -42,7 +42,7 @@ Grid:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1053220236762184505}
   m_Enabled: 1
-  m_CellSize: {x: 0.5, y: 0.5, z: 0}
+  m_CellSize: {x: 1, y: 1, z: 0}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
@@ -65,15 +65,20 @@ MonoBehaviour:
   boardWidth: 8
   boardHeight: 30
   bufferHeight: 5
+  chanceOfHardBlock: 0.1
   fallSpeed: 2
-  usePhysicsGravity: 0
   blockTiles:
-  - {fileID: 11400000, guid: 9cc77652689c64b69ba13fd7a5bf1a5f, type: 2}
-  - {fileID: 11400000, guid: 5460e01eeea08453e8cd9e52af8aa617, type: 2}
-  - {fileID: 11400000, guid: 682c27830304c41849658dacd35651a9, type: 2}
-  - {fileID: 11400000, guid: 97fd3d43291944b46a52f6991e5dbb75, type: 2}
-  - {fileID: 11400000, guid: 7b633717106ee4bb4baaa302da4ebf7b, type: 2}
-  emptyTile: {fileID: 11400000, guid: 7ce8340fa8b42430e8b6d32b022d912a, type: 2}
+  - {fileID: 11400000, guid: bcdae0db3fd7a4c32a94ff780946c7ea, type: 2}
+  - {fileID: 11400000, guid: 63fa33e38720846428de71bad75c89e5, type: 2}
+  - {fileID: 11400000, guid: 2471d71cdccf34b5792488f7a2ac2c31, type: 2}
+  - {fileID: 11400000, guid: b8e7d17bb6c9a4c47b975a21cf414010, type: 2}
+  - {fileID: 11400000, guid: 9cf6c8bf0e2ed4b5ebfdc5989c1533d2, type: 2}
+  - {fileID: 11400000, guid: 4b9d6e757550f4652bfc49902024d4d7, type: 2}
+  bufferTile: {fileID: 11400000, guid: 0d345a9572cd948739f924fac275aebb, type: 2}
+  hardTiles:
+  - {fileID: 11400000, guid: 27d1b9c27362d40608437ac912299afd, type: 2}
+  - {fileID: 11400000, guid: 06cfb55f8cdaa47829164b02425350b3, type: 2}
+  - {fileID: 11400000, guid: c0e0bcde6df4b4452925b090e6255296, type: 2}
   bufferDestroyed: 0
 --- !u!1 &1892837008200283487
 GameObject:
