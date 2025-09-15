@@ -14,6 +14,12 @@ public class GameBoard : MonoBehaviour
     public TilemapRenderer tilemapRenderer;
     public TilemapCollider2D tilemapCollider;
 
+    [Header("Life Items")]
+    public TileBase lifeItemTile; // Sprite for life items
+    public float chanceOfLifeItem = 0.05f; // 5% chance of generating a life item
+    private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
+
+
     [Header("Board Settings")]
 
     //might have to edit to camera size after, unless we want to set it skinny for all screen sizes
@@ -89,14 +95,23 @@ public class GameBoard : MonoBehaviour
         {
             for (int y = 0; y > -levelHeight; y--)
             {
-                BlockType randomType = (BlockType)UnityEngine.Random.Range(numNonBreakableBlocks, System.Enum.GetValues(typeof(BlockType)).Length);
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfHardBlock)
+                // Small chance for life item
+                if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfLifeItem)
+                {
+                    CreateBlock(x, y, BlockType.Life);
+                }
+                else if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfHardBlock)
                 {
                     CreateBlock(x, y, BlockType.Hard);
                 }
-                else CreateBlock(x, y, randomType);
+                else
+                {
+                    BlockType randomType = (BlockType)UnityEngine.Random.Range(numSpecialBlocks, System.Enum.GetValues(typeof(BlockType)).Length);
+                    CreateBlock(x, y, randomType);
+                }
             }
         }
+
         for (int x = 0; x < boardWidth; x++)
         {
             for (int y = -levelHeight; y > -boardHeight; y--)
@@ -105,24 +120,76 @@ public class GameBoard : MonoBehaviour
             }
         }
     }
-
     //y is negative
     public void CreateBlock(int x, int y, BlockType blockType)
     {
         if (!IsValidPosition(x, y) || blockType == BlockType.Empty) return;
 
         Vector3Int position = new Vector3Int(x, y, 0);
+        TileBase tileToUse = null;
 
-        if (blockType == BlockType.Buffer)
+        switch (blockType)
         {
-            tilemap.SetTile(position, bufferTile);
-            blockData[x, -y] = new BlockData(BlockType.Buffer);
+            case BlockType.Buffer:
+                tileToUse = bufferTile;
+                break;
+
+            case BlockType.Life:
+                tileToUse = lifeItemTile;
+                if (tileToUse == null)
+                {
+                    Debug.LogError("Life item tile is not assigned! Please assign a tile to lifeItemTile in the GameBoard inspector.");
+                    return;
+                }
+                break;
+
+            case BlockType.Hard:
+                if (hardTiles == null || hardTiles.Length == 0)
+                {
+                    Debug.LogError("Hard tiles array is not set up properly!");
+                    return;
+                }
+                tileToUse = blockTiles[0]; // Full health hard block
+                break;
+
+            default:
+                // Handle colored blocks (Magenta, Green, Yellow, Blue, Red)
+                if (blockTiles == null || blockTiles.Length == 0)
+                {
+                    Debug.LogError("Block tiles array is not set up properly!");
+                    return;
+                }
+
+                int colorIndex = (int)blockType - numNonBreakableBlocks + 1;
+                if (colorIndex < 0 || colorIndex >= blockTiles.Length)
+                {
+                    Debug.LogError($"Invalid color block index: {colorIndex} for blockType: {blockType}");
+                    return;
+                }
+
+                tileToUse = blockTiles[colorIndex];
+                break;
+        }
+
+        if (tileToUse == null)
+        {
+            Debug.LogError($"No tile assigned for blockType: {blockType}");
+            return;
+        }
+
+        // Set the tile
+        tilemap.SetTile(position, tileToUse);
+        blockData[x, -y] = new BlockData(blockType);
+
+        // Verify it was set correctly
+        TileBase verifyTile = tilemap.GetTile(position);
+        if (verifyTile == null)
+        {
+            Debug.LogError($"Failed to place tile for {blockType} at ({x}, {y})");
         }
         else
         {
-            TileBase tileToPlace = blockTiles[(int)blockType - numNonBreakableBlocks + 1]; //+1 for the Hard Block
-            tilemap.SetTile(position, tileToPlace);
-            blockData[x, -y] = new BlockData(blockType);
+            Debug.Log($"Successfully placed {blockType} tile at ({x}, {y})");
         }
     }
 
@@ -176,7 +243,8 @@ public class GameBoard : MonoBehaviour
         BlockData targetBlock = blockData[x, -y];
         BlockType targetType = targetBlock.blockType;
 
-        if (targetType == BlockType.Empty) return;
+        if (targetType == BlockType.Empty || targetType == BlockType.Life) return;
+
         if (targetType == BlockType.Hard)
         {
             TryDamageHardBlock(targetBlock, x, y);
@@ -442,7 +510,9 @@ public class GameBoard : MonoBehaviour
     void TryDamageHardBlock(BlockData block, int x, int y)
     {
         if (block.blockType != BlockType.Hard) return;
+
         block.Damage();
+
         if (player.tool == Tool.Pickaxe || block.Health() <= 0)
         {
             DestroyBlock(x, y);
@@ -450,7 +520,54 @@ public class GameBoard : MonoBehaviour
         else
         {
             Vector3Int position = new Vector3Int(x, y, 0);
-            tilemap.SetTile(position, hardTiles[hardTiles.Length - block.Health()]);
+
+            int spriteIndex = 3 - block.Health();
+            spriteIndex = Mathf.Clamp(spriteIndex, 0, hardTiles.Length - 1);
+
+            tilemap.SetTile(position, hardTiles[spriteIndex]);
+
+            Debug.Log($"Hard block at ({x},{y}) has {block.Health()} health, using sprite index {spriteIndex}");
+        }
+    }
+
+    public bool IsPlayerInDanger(Vector3Int playerPos)
+    {
+        // Check positions above the player for falling blocks
+        for (int checkY = playerPos.y + 1; checkY <= 0; checkY++)
+        {
+            if (IsValidPosition(playerPos.x, checkY))
+            {
+                BlockData blockData = GetBlockData(playerPos.x, checkY);
+                if (blockData != null && blockData.blockType != BlockType.Empty && blockData.blockType != BlockType.Buffer)
+                {
+                    // Check if this block can fall (has empty space below it)
+                    if (CanBlockFall(playerPos.x, checkY))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    private bool CanBlockFall(int x, int y)
+    {
+        Vector3Int belowPos = new Vector3Int(x, y - 1, 0);
+        if (!IsValidPosition(belowPos.x, belowPos.y)) return false;
+
+        BlockData blockBelow = GetBlockData(belowPos.x, belowPos.y);
+        return blockBelow != null && blockBelow.blockType == BlockType.Empty;
+    }
+    private void NotifyBlocksFalling()
+    {
+        PlayerMovement player = FindFirstObjectByType<PlayerMovement>();
+        if (player != null)
+        {
+            BlockCollisionDetector detector = player.GetComponent<BlockCollisionDetector>();
+            if (detector != null)
+            {
+                detector.OnBlocksStartFalling();
+            }
         }
     }
 }
