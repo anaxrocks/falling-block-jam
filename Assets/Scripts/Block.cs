@@ -6,11 +6,12 @@ public enum BlockType
     Empty = 0,
     Buffer = 1,
     Hard = 2,
-    Magenta = 3,
-    Green = 4,
-    Yellow = 5,
-    Blue = 6,
-    Red = 7
+    Blue = 3,
+    Magenta = 4,
+    Orange = 5,
+    Green = 6,
+    Purple = 7,
+    Life = 8
 }
 
 [System.Serializable]
@@ -40,5 +41,9 @@ public class BlockData
     public int Health()
     {
         return (int)health;
+    }
+    public bool IsCollectible()
+    {
+        return blockType == BlockType.Life;
     }
 }

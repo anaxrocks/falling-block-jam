@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private GameBoard _gameBoard;
     private GameBoardManager gameBoardManager;
 
-    private const float GRID_OFFSET = 0.25f;
+    private const float GRID_OFFSET = 0.5f;
     private const float MOVEMENT_THRESHOLD = 0.5f;
     private const float POSITION_TOLERANCE = 0.01f;
 
@@ -38,8 +38,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (gameBoardManager == null)
             gameBoardManager = FindFirstObjectByType<GameBoardManager>();
-        // if (_gameBoard == null)
-        //         _gameBoard = GameObject.FindFirstObjectByType<GameBoard>();
     }
 
     void Start()
@@ -229,27 +227,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void CheckGravity()
-    {
-        if (_isMoving) return;
-
-        Vector3Int belowPos = _currentGridPosition + Vector3Int.down;
-
-        if (IsEmptySpace(belowPos))
-        {
-            MoveToPosition(belowPos);
-            StartCoroutine(FallToTarget());
-        }
-    }
-
-    private bool IsEmptySpace(Vector3Int position)
-    {
-        if (!_gameBoard.IsValidPosition(position.x, position.y)) return false;
-
-        BlockData blockData = _gameBoard.GetBlockData(position.x, position.y);
-        return blockData != null && blockData.blockType == BlockType.Empty;
-    }
-
     System.Collections.IEnumerator FallToTarget()
     {
         while (_isMoving)
@@ -265,20 +242,6 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
     }
-
-    bool TryMove(Vector3Int direction)
-    {
-        Vector3Int newPos = _currentGridPosition + direction;
-
-        if (IsEmptySpace(newPos))
-        {
-            MoveToPosition(newPos);
-            return true;
-        }
-
-        return false;
-    }
-
     bool TryAutoJump(Vector3Int horizontalDirection)
     {
         if (!IsHorizontalDirection(horizontalDirection)) return false;
@@ -295,15 +258,13 @@ public class PlayerMovement : MonoBehaviour
 
         return false;
     }
-
-    void MoveToPosition(Vector3Int gridPosition)
+        void MoveToPosition(Vector3Int gridPosition)
     {
         _currentGridPosition = gridPosition;
         Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
         _targetWorldPosition = new Vector3(corner.x + GRID_OFFSET, corner.y + GRID_OFFSET, 0);
         _isMoving = true;
     }
-
     public Vector3Int GetCurrentGridPosition()
     {
         return _currentGridPosition;
@@ -311,5 +272,87 @@ public class PlayerMovement : MonoBehaviour
     public void updateCurBoard(GameBoard gb)
     {
         _gameBoard = gb;
+    }
+    bool TryMove(Vector3Int direction)
+    {
+        Vector3Int newPos = _currentGridPosition + direction;
+
+        if (!_gameBoard.IsValidPosition(newPos.x, newPos.y))
+            return false;
+
+        BlockData blockData = _gameBoard.GetBlockData(newPos.x, newPos.y);
+
+        if (blockData == null)
+            return false;
+
+        // life item --> collect it and allow movement
+        if (blockData.blockType == BlockType.Life)
+        {
+            CollectLifeItem(newPos.x, newPos.y);
+            MoveToPosition(newPos);
+            return true;
+        }
+
+        // empty space --> allow movement
+        if (blockData.blockType == BlockType.Empty)
+        {
+            MoveToPosition(newPos);
+            return true;
+        }
+
+        // All other block types no movement
+        return false;
+    }
+
+    // Add this new method to handle life item collection:
+    private void CollectLifeItem(int x, int y)
+    {
+        // Get health system and heal player
+        HealthManager healthSystem = GetComponent<HealthManager>();
+        if (healthSystem != null)
+        {
+            healthSystem.OnLifeItemCollected();
+        }
+
+        // Remove the life item from the game board
+        _gameBoard.DestroyBlock(x, y);
+
+        // Start gravity processing to make blocks fall
+        StartCoroutine(_gameBoard.ProcessGravity());
+
+        Debug.Log($"Collected life item at ({x}, {y})!");
+    }
+    void CheckGravity()
+    {
+        if (_isMoving) return;
+
+        Vector3Int belowPos = _currentGridPosition + Vector3Int.down;
+
+        if (CanMoveToPosition(belowPos))
+        {
+            // Check if there's a life item below us - collect it during fall
+            BlockData blockData = _gameBoard.GetBlockData(belowPos.x, belowPos.y);
+            if (blockData != null && blockData.blockType == BlockType.Life)
+            {
+                CollectLifeItem(belowPos.x, belowPos.y);
+            }
+
+            MoveToPosition(belowPos);
+            StartCoroutine(FallToTarget());
+        }
+    }
+    private bool CanMoveToPosition(Vector3Int position)
+    {
+        if (!_gameBoard.IsValidPosition(position.x, position.y)) return false;
+
+        BlockData blockData = _gameBoard.GetBlockData(position.x, position.y);
+        if (blockData == null) return false;
+
+        // Can move to empty spaces or life items
+        return blockData.blockType == BlockType.Empty || blockData.blockType == BlockType.Life;
+    }
+    private bool IsEmptySpace(Vector3Int position)
+    {
+        return CanMoveToPosition(position);
     }
 }
