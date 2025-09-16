@@ -19,7 +19,7 @@ public class GameBoard : MonoBehaviour
     public float chanceOfLifeItem = 0.05f; // 5% chance of generating a life item
     private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
     [Header("Tools")]
-    public float chanceOfTool = 0.005f; //0.5% chance of generating tool
+    public float chanceOfTool = 0.1f; //0.5% chance of generating tool
     public TileBase[] toolTiles;
 
     [Header("Board Settings")]
@@ -172,7 +172,7 @@ public class GameBoard : MonoBehaviour
                     return;
                 }
 
-                int colorIndex = (int)blockType - numSpecialBlocks + 1;
+                int colorIndex = (int)blockType - numSpecialBlocks;
                 if (colorIndex < 0 || colorIndex >= blockTiles.Length)
                 {
                     Debug.LogError($"Invalid color block index: {colorIndex} for blockType: {blockType}");
@@ -503,15 +503,11 @@ public class GameBoard : MonoBehaviour
         if (!IsValidPosition(x, y)) return;
         if (player.tool != Tool.Hammer) return;
 
-        BlockData targetBlock = blockData[x, -y];
-        BlockType targetType = targetBlock.blockType;
-
-        if (targetType == BlockType.Empty) return;
-
-        for (int dx = x - 1; dx <= x + 1; x++)
+        for (int dx = x - 1; dx < x + 2; dx++)
         {
-            for (int dy = y; y >= y - 2; y--)
+            for (int dy = y; dy > y - 3; dy--)
             {
+                Debug.Log("ATtempting to break position" + dx + ", " + dy);
                 if (IsValidPosition(dx, dy))
                 {
                     BlockData block = blockData[dx, -dy];
@@ -520,10 +516,9 @@ public class GameBoard : MonoBehaviour
                     {
                         TryDamageHardBlock(block, dx, dy);
                     }
-                    else if (block.blockType != BlockType.Empty)
+                    else if (isNormalBlock(block.blockType))
                     {
-                        DestroyBlock(dx, dx);
-
+                        DestroyBlock(dx, dy);
                     }
                 }
             }
@@ -556,6 +551,10 @@ public class GameBoard : MonoBehaviour
 
             Debug.Log($"Hard block at ({x},{y}) has {block.Health()} health, using sprite index {spriteIndex}");
         }
+    }
+    public bool isNormalBlock(BlockType block)
+    {
+        return block > BlockType.Life;
     }
 
     public bool IsPlayerInDanger(Vector3Int playerPos)

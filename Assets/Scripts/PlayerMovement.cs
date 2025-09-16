@@ -339,13 +339,6 @@ public class PlayerMovement : MonoBehaviour
         _gameBoard.DestroyBlock(x, y);
         StartCoroutine(_gameBoard.ProcessGravity());
     }
-    //TODO: add timer to tools
-    private void CollectToolItem(int x, int y)
-    {
-        tool = _gameBoard.GetBlockData(x, y).tool;
-        _gameBoard.DestroyBlock(x, y);
-        StartCoroutine(_gameBoard.ProcessGravity());
-    }
     void CheckGravity()
     {
         if (_isMoving) return;
