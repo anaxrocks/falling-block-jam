@@ -77,8 +77,7 @@ public class HealthManager : MonoBehaviour
         if (currentHealth <= lowHealthThreshold && !lowHealthWarning)
         {
             lowHealthWarning = true;
-            PlaySound(lowHealthSound);
-            // Could add screen flash or other warning effects here
+            SoundManager.Instance.PlaySound2D("OxygenLow");
         }
         else if (currentHealth > lowHealthThreshold && lowHealthWarning)
         {
