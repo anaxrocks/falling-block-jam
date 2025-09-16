@@ -299,9 +299,16 @@ public class PlayerMovement : MonoBehaviour
             MoveToPosition(newPos);
             return true;
         }
+        // tool --> collect it and allow movement
+        if (blockData.blockType == BlockType.Tool)
+        {
+            CollectToolItem(newPos.x, newPos.y);
+            MoveToPosition(newPos);
+            return true;
+        }
 
         // All other block types no movement
-        return false;
+            return false;
     }
 
     // Add this new method to handle life item collection:
@@ -321,6 +328,13 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(_gameBoard.ProcessGravity());
 
         Debug.Log($"Collected life item at ({x}, {y})!");
+    }
+    //TODO: add timer to tools
+    private void CollectToolItem(int x, int y)
+    {
+        tool = _gameBoard.GetBlockData(x, y).tool;
+        _gameBoard.DestroyBlock(x, y);
+        StartCoroutine(_gameBoard.ProcessGravity());
     }
     void CheckGravity()
     {

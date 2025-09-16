@@ -18,7 +18,9 @@ public class GameBoard : MonoBehaviour
     public TileBase lifeItemTile; // Sprite for life items
     public float chanceOfLifeItem = 0.05f; // 5% chance of generating a life item
     private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
-
+    [Header("Tools")]
+    public float chanceOfTool = 0.005f; //0.5% chance of generating tool
+    public TileBase[] toolTiles;
 
     [Header("Board Settings")]
 
@@ -39,7 +41,6 @@ public class GameBoard : MonoBehaviour
     private BlockData[,] blockData;
     private bool isProcessingGravity = false;
     public bool bufferDestroyed = false;
-    private int numNonBreakableBlocks = 3;
     [Header("Player settings")]
     private PlayerMovement player;
     void Awake()
@@ -95,14 +96,19 @@ public class GameBoard : MonoBehaviour
         {
             for (int y = 0; y > -levelHeight; y--)
             {
+                float rng = UnityEngine.Random.Range(0.0f, 1.0f);
                 // Small chance for life item
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfLifeItem)
+                if (rng < chanceOfLifeItem)
                 {
                     CreateBlock(x, y, BlockType.Life);
                 }
-                else if (UnityEngine.Random.Range(0.0f, 1.0f) < chanceOfHardBlock)
+                else if (rng < chanceOfHardBlock + chanceOfLifeItem)
                 {
                     CreateBlock(x, y, BlockType.Hard);
+                }
+                else if (rng < chanceOfHardBlock + chanceOfLifeItem + chanceOfTool)
+                {
+                    CreateBlock(x, y, BlockType.Tool);
                 }
                 else
                 {
@@ -127,7 +133,7 @@ public class GameBoard : MonoBehaviour
 
         Vector3Int position = new Vector3Int(x, y, 0);
         TileBase tileToUse = null;
-
+        blockData[x, -y] = new BlockData(blockType);
         switch (blockType)
         {
             case BlockType.Buffer:
@@ -152,6 +158,12 @@ public class GameBoard : MonoBehaviour
                 tileToUse = blockTiles[0]; // Full health hard block
                 break;
 
+            case BlockType.Tool:
+                int toolIndex = UnityEngine.Random.Range(0, toolTiles.Length);
+                tileToUse = toolTiles[toolIndex];
+                blockData[x, -y].SetTool(toolIndex + 1);
+                break;
+
             default:
                 // Handle colored blocks (Magenta, Green, Yellow, Blue, Red)
                 if (blockTiles == null || blockTiles.Length == 0)
@@ -160,7 +172,7 @@ public class GameBoard : MonoBehaviour
                     return;
                 }
 
-                int colorIndex = (int)blockType - numNonBreakableBlocks + 1;
+                int colorIndex = (int)blockType - numSpecialBlocks + 1;
                 if (colorIndex < 0 || colorIndex >= blockTiles.Length)
                 {
                     Debug.LogError($"Invalid color block index: {colorIndex} for blockType: {blockType}");
@@ -179,7 +191,6 @@ public class GameBoard : MonoBehaviour
 
         // Set the tile
         tilemap.SetTile(position, tileToUse);
-        blockData[x, -y] = new BlockData(blockType);
 
         // Verify it was set correctly
         TileBase verifyTile = tilemap.GetTile(position);
@@ -239,7 +250,11 @@ public class GameBoard : MonoBehaviour
     public void DestroyConnectedBlocks(int x, int y)
     {
         if (!IsValidPosition(x, y)) return;
-
+        if (player.tool == Tool.Hammer)
+        {
+            DestroyThree(x, y);
+            return;
+        }
         BlockData targetBlock = blockData[x, -y];
         BlockType targetType = targetBlock.blockType;
 
