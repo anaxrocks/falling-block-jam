@@ -31,7 +31,6 @@ public class GameBoardManager : MonoBehaviour
     void Start()
     {
         player = FindAnyObjectByType<PlayerMovement>();
-
     }
 
     void Update()

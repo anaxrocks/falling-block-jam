@@ -64,8 +64,12 @@ MonoBehaviour:
   tilemapCollider: {fileID: 0}
   lifeItemTile: {fileID: 11400000, guid: 41ce1b10866f34b7ea35960f6792ad4d, type: 2}
   chanceOfLifeItem: 0.02
+  chanceOfTool: 0.005
+  toolTiles:
+  - {fileID: 11400000, guid: 682c27830304c41849658dacd35651a9, type: 2}
+  - {fileID: 11400000, guid: 97fd3d43291944b46a52f6991e5dbb75, type: 2}
   boardWidth: 8
-  boardHeight: 30
+  boardHeight: 50
   bufferHeight: 5
   chanceOfHardBlock: 0.1
   fallSpeed: 2
