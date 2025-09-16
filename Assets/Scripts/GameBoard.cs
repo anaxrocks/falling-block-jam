@@ -252,8 +252,13 @@ public class GameBoard : MonoBehaviour
         if (!IsValidPosition(x, y)) return;
         if (player.tool == Tool.Hammer)
         {
+            SoundManager.Instance.PlaySound2D("Hammer");
             DestroyThree(x, y);
             return;
+        }
+        if (player.tool == Tool.Pickaxe)
+        {
+            SoundManager.Instance.PlaySound2D("Pickaxe");
         }
         BlockData targetBlock = blockData[x, -y];
         BlockType targetType = targetBlock.blockType;
@@ -262,6 +267,7 @@ public class GameBoard : MonoBehaviour
 
         if (targetType == BlockType.Hard)
         {
+            SoundManager.Instance.PlaySound2D("HardBreak");
             TryDamageHardBlock(targetBlock, x, y);
             return;
         }
@@ -290,6 +296,8 @@ public class GameBoard : MonoBehaviour
                 }
             }
         }
+
+        SoundManager.Instance.PlaySound2D("SoftBreak");
 
         // Destroy connected blocks
         if (connectedBlocks.Count > 0)
@@ -488,6 +496,7 @@ public class GameBoard : MonoBehaviour
                 }
             }
         }
+        SoundManager.Instance.PlaySound2D("Revive");
     }
     private void DestroyThree(int x, int y)
     {
@@ -527,6 +536,10 @@ public class GameBoard : MonoBehaviour
         if (block.blockType != BlockType.Hard) return;
 
         block.Damage();
+        if (player.tool == Tool.Pickaxe)
+        {
+            SoundManager.Instance.PlaySound2D("Pickaxe");   
+        }
 
         if (player.tool == Tool.Pickaxe || block.Health() <= 0)
         {

@@ -328,6 +328,16 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(_gameBoard.ProcessGravity());
 
         Debug.Log($"Collected life item at ({x}, {y})!");
+
+        SoundManager.Instance.PlaySound2D("PicturePickup");
+        print("powerpickup sound");
+    }
+    //TODO: add timer to tools
+    private void CollectToolItem(int x, int y)
+    {
+        tool = _gameBoard.GetBlockData(x, y).tool;
+        _gameBoard.DestroyBlock(x, y);
+        StartCoroutine(_gameBoard.ProcessGravity());
     }
     //TODO: add timer to tools
     private void CollectToolItem(int x, int y)

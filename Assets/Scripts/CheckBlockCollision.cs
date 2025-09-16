@@ -84,19 +84,21 @@ public class BlockCollisionDetector : MonoBehaviour
     {
         // Heal player
         healthSystem.OnLifeItemCollected();
-        
+
         // Remove the life item from the game board
         gameBoard.DestroyBlock(x, y);
-        
+
         // Start gravity processing
         StartCoroutine(gameBoard.ProcessGravity());
-        
+
         Debug.Log($"Collected life item at ({x}, {y})!");
     }
 
     private void HandleBlockCollisionDamage(int x, int y, BlockData blockData)
     {
         if (isInvulnerable) return;
+
+        SoundManager.Instance.PlaySound2D("Die");
 
         // Take damage from the falling block
         healthSystem.OnBlockFallDamage();
