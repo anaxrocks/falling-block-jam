@@ -16,6 +16,7 @@ public class GameBoard : MonoBehaviour
 
     [Header("Life Items")]
     public TileBase lifeItemTile; // Sprite for life items
+    public AnimatedTile[] lifeItemAnimated;
     public float chanceOfLifeItem = 0.05f; // 5% chance of generating a life item
     private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
     [Header("Tools")]
@@ -141,10 +142,10 @@ public class GameBoard : MonoBehaviour
                 break;
 
             case BlockType.Life:
-                tileToUse = lifeItemTile;
+                tileToUse = lifeItemAnimated[UnityEngine.Random.Range(0, lifeItemAnimated.Length)];
                 if (tileToUse == null)
                 {
-                    Debug.LogError("Life item tile is not assigned! Please assign a tile to lifeItemTile in the GameBoard inspector.");
+                    Debug.LogError("Life item tile is not assigned! Please assign a tile to lifeItemAnimated in the GameBoard inspector.");
                     return;
                 }
                 break;

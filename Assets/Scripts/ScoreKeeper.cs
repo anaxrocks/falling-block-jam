@@ -1,12 +1,12 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class ScoreKeeper : MonoBehaviour
 {
     private GameBoardManager gameBoardManager;
     private int score;
     private PlayerMovement player;
-    private TextMeshPro tmp;
+    [SerializeField] private Text scoreText; // Optional text display
 
     private Vector3 startingPos;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -16,7 +16,7 @@ public class ScoreKeeper : MonoBehaviour
         gameBoardManager = FindAnyObjectByType<GameBoardManager>();
         score = 0;
         startingPos = player.transform.position;
-        tmp = GetComponent<TextMeshPro>();
+        scoreText.text = "Score: 0";
     }
 
     // Update is called once per frame
@@ -30,6 +30,6 @@ public class ScoreKeeper : MonoBehaviour
         Vector3Int start = gameBoardManager.curBoard.WorldToCell(startingPos);
         Vector3Int cur = gameBoardManager.curBoard.WorldToCell(player.transform.position);
         score = (int)Mathf.Max(score, start.y - cur.y);
-        tmp.text = "Score: " + score;
+        scoreText.text = $"Score: {score}";
     }
 }

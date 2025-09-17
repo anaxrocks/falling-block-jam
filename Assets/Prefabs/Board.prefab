@@ -63,6 +63,10 @@ MonoBehaviour:
   tilemapRenderer: {fileID: 0}
   tilemapCollider: {fileID: 0}
   lifeItemTile: {fileID: 11400000, guid: 41ce1b10866f34b7ea35960f6792ad4d, type: 2}
+  lifeItemAnimated:
+  - {fileID: 11400000, guid: cfcf3a965c1d84491a8fc312ce9f6041, type: 2}
+  - {fileID: 11400000, guid: 53aae2ac37c6f49f6aacbf4e9e063cf5, type: 2}
+  - {fileID: 11400000, guid: 2884d6f01deeb4903b12e107b28c56b4, type: 2}
   chanceOfLifeItem: 0.02
   chanceOfTool: 0.005
   toolTiles:

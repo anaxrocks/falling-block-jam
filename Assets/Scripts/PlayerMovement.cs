@@ -115,17 +115,17 @@ public class PlayerMovement : MonoBehaviour
         if (!_gameBoard.IsValidPosition(x, y)) return;
 
         BlockData blockData = _gameBoard.GetBlockData(x, y);
-        if (blockData != null && blockData.blockType != BlockType.Empty && blockData.blockType != BlockType.Buffer)
+        if (blockData != null && blockData.blockType != BlockType.Empty)
         {
             _gameBoard.DestroyConnectedBlocks(x, y);
 
             // Reset auto-jump waiting if we break a block
-            if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
-                (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
-            {
-                _isWaitingForAutoJump = false;
-                _blockedDirection = Vector3Int.zero;
-            }
+                if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
+                    (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
+                {
+                    _isWaitingForAutoJump = false;
+                    _blockedDirection = Vector3Int.zero;
+                }
 
             Debug.Log($"Breaking block at ({x}, {y}) of type: {blockData.blockType}");
         }
