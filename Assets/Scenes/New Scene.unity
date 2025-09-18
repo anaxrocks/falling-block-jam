@@ -880,6 +880,7 @@ GameObject:
   - component: {fileID: 1305510540}
   - component: {fileID: 1305510539}
   - component: {fileID: 1305510538}
+  - component: {fileID: 1305510543}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -943,7 +944,7 @@ MonoBehaviour:
   _fallSpeed: 2
   _continuousMovementDelay: 0.2
   _autoJumpDelay: 0.4
-  tool: 2
+  tool: 0
 --- !u!212 &1305510541
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1015,6 +1016,20 @@ Transform:
   - {fileID: 222360444}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1305510543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305510537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c9f5918b6724403297812ac1b0bf6c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hammerDurationInBlocks: 5
+  pickaxeDurationInBlocks: 10
 --- !u!1 &1350514042
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _isWaitingForAutoJump = false;
     //Tool held
     public Tool tool = Tool.None;
+    private ToolTimer toolTimer;
 
     void Awake()
     {
@@ -43,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         InitializePosition();
+        toolTimer = GetComponent<ToolTimer>();
     }
 
     void Update()
@@ -115,17 +118,17 @@ public class PlayerMovement : MonoBehaviour
         if (!_gameBoard.IsValidPosition(x, y)) return;
 
         BlockData blockData = _gameBoard.GetBlockData(x, y);
-        if (blockData != null && blockData.blockType != BlockType.Empty)
+        if (blockData != null && blockData.blockType != BlockType.Empty && blockData.blockType != BlockType.Buffer)
         {
             _gameBoard.DestroyConnectedBlocks(x, y);
-
+            toolTimer.ToolTimerTick();
             // Reset auto-jump waiting if we break a block
-                if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
-                    (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
-                {
-                    _isWaitingForAutoJump = false;
-                    _blockedDirection = Vector3Int.zero;
-                }
+            if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
+                (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
+            {
+                _isWaitingForAutoJump = false;
+                _blockedDirection = Vector3Int.zero;
+            }
 
             Debug.Log($"Breaking block at ({x}, {y}) of type: {blockData.blockType}");
         }
@@ -258,7 +261,7 @@ public class PlayerMovement : MonoBehaviour
 
         return false;
     }
-        void MoveToPosition(Vector3Int gridPosition)
+    void MoveToPosition(Vector3Int gridPosition)
     {
         _currentGridPosition = gridPosition;
         Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
@@ -308,7 +311,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // All other block types no movement
-            return false;
+        return false;
     }
 
     // Add this new method to handle life item collection:
@@ -337,6 +340,7 @@ public class PlayerMovement : MonoBehaviour
     {
         tool = _gameBoard.GetBlockData(x, y).tool;
         _gameBoard.DestroyBlock(x, y);
+        toolTimer.StartTimer(tool);
         StartCoroutine(_gameBoard.ProcessGravity());
     }
     void CheckGravity()
