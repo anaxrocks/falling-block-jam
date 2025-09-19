@@ -147,14 +147,14 @@ ScriptedImporter:
   spriteSheetImportData:
   - name: Polaroids_0
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 1
-      y: 69
+      x: 0
+      y: 130
       width: 32
       height: 32
     spriteID: 9eb2c46614a144993bdd32948b4317b8
@@ -168,14 +168,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_1
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 33
-      y: 69
+      x: 32
+      y: 130
       width: 32
       height: 32
     spriteID: c9b7278afe9814b16aeea1eda4753caf
@@ -189,14 +189,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_2
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 65
-      y: 69
+      x: 64
+      y: 130
       width: 32
       height: 32
     spriteID: 81d8544714f5b48d684128c4bbc9d54d
@@ -210,14 +210,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_3
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 97
-      y: 69
+      x: 96
+      y: 130
       width: 32
       height: 32
     spriteID: 304caf18d1c7f4bf1a621537a4ae2121
@@ -231,14 +231,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_4
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 1
-      y: 37
+      x: 0
+      y: 98
       width: 32
       height: 32
     spriteID: 10fba927c04d84bc48619085de35f40b
@@ -252,14 +252,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_5
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 33
-      y: 37
+      x: 32
+      y: 98
       width: 32
       height: 32
     spriteID: c346facf1532140a5be6dafec8b306c1
@@ -273,14 +273,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_6
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 65
-      y: 37
+      x: 64
+      y: 98
       width: 32
       height: 32
     spriteID: f17074c21ca21464999545c66443beca
@@ -294,14 +294,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_7
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 97
-      y: 37
+      x: 96
+      y: 98
       width: 32
       height: 32
     spriteID: c4858a18d6c7e471b831055a8933f77d
@@ -315,14 +315,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_8
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 1
-      y: 5
+      x: 0
+      y: 66
       width: 32
       height: 32
     spriteID: 6b44dbb1b8b7d4b69b44625f14a6f962
@@ -336,14 +336,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_9
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 33
-      y: 5
+      x: 32
+      y: 66
       width: 32
       height: 32
     spriteID: ada5e7bb861914c79a8bb96b3de654bd
@@ -357,14 +357,14 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_10
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0, y: 0}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 65
-      y: 5
+      x: 64
+      y: 66
       width: 32
       height: 32
     spriteID: 4252d667d7dfd4d5b9193a3d7c5cb7a4
@@ -378,17 +378,143 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: Polaroids_11
     originalName: 
+    pivot: {x: 0, y: 0}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 96
+      y: 66
+      width: 32
+      height: 32
+    spriteID: a3f9ebf2f0d6c49d09d369b37f7e54b7
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_12
+    originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
-      x: 97
-      y: 5
+      x: 0
+      y: 34
       width: 32
       height: 32
-    spriteID: a3f9ebf2f0d6c49d09d369b37f7e54b7
+    spriteID: a951e5565ea504ab6939f2e996aa62b7
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_13
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 32
+      y: 34
+      width: 32
+      height: 32
+    spriteID: 2e9aec62a8e3a4fc08a5d78ee1eca542
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_14
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 64
+      y: 34
+      width: 32
+      height: 32
+    spriteID: 753b6e2b71cde42b1bb4bb3d53432345
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_15
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 2
+      width: 32
+      height: 32
+    spriteID: 01b11d349f82e4c1cb545597e2bcd140
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_16
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 32
+      y: 2
+      width: 32
+      height: 32
+    spriteID: 80ae0e5e87caa4284b97f3b893757841
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Polaroids_17
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 64
+      y: 2
+      width: 32
+      height: 32
+    spriteID: 626dab321ac8a4292b80930a08846e58
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -410,9 +536,9 @@ ScriptedImporter:
       additiveSortOrder: 0
       cellRect:
         x: 2
-        y: 31
+        y: 2
         width: 123
-        height: 97
+        height: 158
       spriteId: 96b92b147155c455b98f621410f6f37f
     linkedCells: []
     parentIndex: -1
@@ -456,5 +582,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 128, y: 128}
-  previousTextureSize: {x: 256, y: 128}
+  canvasSize: {x: 128, y: 160}
+  previousTextureSize: {x: 256, y: 256}

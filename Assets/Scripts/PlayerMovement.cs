@@ -335,8 +335,7 @@ public class PlayerMovement : MonoBehaviour
         SoundManager.Instance.PlaySound2D("PicturePickup");
         print("powerpickup sound");
     }
-    //TODO: add timer to tools
-    private void CollectToolItem(int x, int y)
+    public void CollectToolItem(int x, int y)
     {
         tool = _gameBoard.GetBlockData(x, y).tool;
         _gameBoard.DestroyBlock(x, y);

@@ -21,7 +21,7 @@ public class GameBoard : MonoBehaviour
     private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
     [Header("Tools")]
     public float chanceOfTool = 0.1f; //0.5% chance of generating tool
-    public TileBase[] toolTiles;
+    public AnimatedTile[] toolTiles;
 
     [Header("Board Settings")]
 
