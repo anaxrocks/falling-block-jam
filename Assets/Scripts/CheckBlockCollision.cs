@@ -72,7 +72,12 @@ public class BlockCollisionDetector : MonoBehaviour
             // Collect life item
             HandleLifeItemCollection(playerPos.x, playerPos.y);
         }
-        else if (currentBlock.blockType != BlockType.Empty && 
+        else if (currentBlock.blockType == BlockType.Tool)
+        {
+            // Collect tool itme
+            HandleToolCollection(playerPos.x, playerPos.y);
+        }
+        else if (currentBlock.blockType != BlockType.Empty &&
                  currentBlock.blockType != BlockType.Buffer)
         {
             // Player is occupying same space as a solid block - take damage
@@ -93,6 +98,10 @@ public class BlockCollisionDetector : MonoBehaviour
 
         Debug.Log($"Collected life item at ({x}, {y})!");
     }
+    private void HandleToolCollection(int x, int y)
+    {
+        playerMovement.CollectToolItem(x, y);
+    }
 
     private void HandleBlockCollisionDamage(int x, int y, BlockData blockData)
     {
@@ -102,13 +111,13 @@ public class BlockCollisionDetector : MonoBehaviour
 
         // Take damage from the falling block
         healthSystem.OnBlockFallDamage();
-        
+
         // Clear blocks above player so they don't get stuck
         gameBoard.ClearBlocksAbove(x, y);
-        
+
         // Set invulnerability period
         SetInvulnerable();
-        
+
         Debug.Log($"Player hit by block of type: {blockData.blockType} at ({x}, {y})");
         Debug.Log($"Cleared blocks above player position ({x}, {y})");
     }
