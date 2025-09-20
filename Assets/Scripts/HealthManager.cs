@@ -51,7 +51,7 @@ public class HealthManager : MonoBehaviour
         if (isGameOver) return;
 
         // Decrease health over time
-        DecreaseHealthOverTime();
+        //DecreaseHealthOverTime();
         
         // Check for low health warning
         CheckLowHealthWarning();

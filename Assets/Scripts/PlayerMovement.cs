@@ -35,6 +35,10 @@ public class PlayerMovement : MonoBehaviour
     //Tool held
     public Tool tool = Tool.None;
     private ToolTimer toolTimer;
+    private HealthManager healthSystem;
+
+    public int dmgLow = 1;
+    public int dmgHigh = 5;
 
     void Awake()
     {
@@ -44,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        healthSystem = GetComponent<HealthManager>();
         InitializePosition();
         toolTimer = GetComponent<ToolTimer>();
     }
@@ -120,6 +125,14 @@ public class PlayerMovement : MonoBehaviour
         BlockData blockData = _gameBoard.GetBlockData(x, y);
         if (blockData != null && blockData.blockType != BlockType.Empty)
         {
+            if (blockData.blockType == BlockType.Hard)
+            {
+                healthSystem.TakeDamage(dmgHigh);
+            }
+            else
+            {
+                healthSystem.TakeDamage(dmgLow);
+            }
             _gameBoard.DestroyConnectedBlocks(x, y);
             toolTimer.ToolTimerTick();
             // Reset auto-jump waiting if we break a block
@@ -318,7 +331,6 @@ public class PlayerMovement : MonoBehaviour
     private void CollectLifeItem(int x, int y)
     {
         // Get health system and heal player
-        HealthManager healthSystem = GetComponent<HealthManager>();
         if (healthSystem != null)
         {
             healthSystem.OnLifeItemCollected();

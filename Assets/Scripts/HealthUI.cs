@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class HealthUIController : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class HealthUIController : MonoBehaviour
     {
         // Find the health system
         healthSystem = FindFirstObjectByType<HealthManager>();
-        
+
         if (healthSystem == null)
         {
             Debug.LogError("HealthSystem not found! Make sure it's attached to the player.");
@@ -130,7 +131,7 @@ public class HealthUIController : MonoBehaviour
             {
                 StopCoroutine(pulseCoroutine);
                 pulseCoroutine = null;
-                
+
                 // Reset scale
                 if (healthSlider != null)
                 {
@@ -177,7 +178,7 @@ public class HealthUIController : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
         }
-        
+
         Debug.Log("Game Over! Health depleted.");
     }
 
@@ -202,11 +203,16 @@ public class HealthUIController : MonoBehaviour
         }
         Debug.Log("Game restarted!");
     }
-        public void ForceUpdateUI()
+    public void ForceUpdateUI()
     {
         if (healthSystem != null)
         {
             UpdateHealthUI(healthSystem.GetHealthPercentage());
         }
+    }
+
+    public void RestartButton()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
