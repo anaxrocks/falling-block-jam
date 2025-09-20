@@ -24,6 +24,8 @@ public class MusicManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+
+        PlayMusic("Journey");
     }
 
     public void PlayMusic(string trackName, float volume = 1f, float fadeDuration = 0.5f)
