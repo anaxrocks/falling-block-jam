@@ -81,6 +81,10 @@ public void TriggerBoardTransition()
     
     // Destroy the old board
     Destroy(oldBoard.gameObject, 0.1f);
+
+    created = false;
+
+    CheckForNewBoardLoading();
     
     Debug.Log("Board transition completed - player teleported to new board starting position");
 }
