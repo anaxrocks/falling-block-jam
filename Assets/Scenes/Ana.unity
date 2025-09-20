@@ -1063,6 +1063,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hammerDurationInBlocks: 5
   pickaxeDurationInBlocks: 10
+  noneToolCooldown: 1
+  pickaxeCooldown: 0.3
+  hammerCooldown: 0.8
 --- !u!114 &771869265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,6 +1122,8 @@ MonoBehaviour:
   _fallSpeed: 2
   _continuousMovementDelay: 0.2
   _autoJumpDelay: 0.4
+  _gameBoard: {fileID: 0}
+  isBufferBroken: 0
   tool: 0
   dmgLow: 1
   dmgHigh: 5
@@ -1796,7 +1801,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0

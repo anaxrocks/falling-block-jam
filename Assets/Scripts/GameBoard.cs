@@ -220,6 +220,7 @@ public class GameBoard : MonoBehaviour
     }
 
     //Destroy all blocks connected to the block x,y including the chosen block
+    //Destroy all blocks connected to the block x,y including the chosen block
     public void DestroyConnectedBlocks(int x, int y)
     {
         if (!IsValidPosition(x, y)) return;
@@ -236,7 +237,7 @@ public class GameBoard : MonoBehaviour
         BlockData targetBlock = blockData[x, -y];
         BlockType targetType = targetBlock.blockType;
 
-        if (targetType == BlockType.Empty || targetType == BlockType.Life) return;
+        if (targetType == BlockType.Empty || targetType == BlockType.Life || targetType == BlockType.Tool) return;
 
         if (targetType == BlockType.Hard)
         {
@@ -281,6 +282,48 @@ public class GameBoard : MonoBehaviour
             }
             StartCoroutine(ProcessGravity());
         }
+    }
+
+    private void DestroyThree(int x, int y)
+    {
+        if (!IsValidPosition(x, y)) return;
+        if (player.tool != Tool.Hammer) return;
+        if (blockData[x, -y].blockType == BlockType.Buffer)
+        {
+            player.tool = Tool.None;
+            DestroyConnectedBlocks(x, y);
+            return;
+        }
+        
+        for (int dx = x - 1; dx < x + 2; dx++)
+        {
+            for (int dy = y; dy > y - 3; dy--)
+            {
+                Debug.Log("ATtempting to break position" + dx + ", " + dy);
+                if (IsValidPosition(dx, dy))
+                {
+                    BlockData block = blockData[dx, -dy];
+                    
+                    // Skip tools - they cannot be destroyed by hammer
+                    if (block.blockType == BlockType.Tool)
+                    {
+                        Debug.Log($"Skipping tool at ({dx}, {dy}) - tools cannot be destroyed by hammer");
+                        continue;
+                    }
+                    
+                    //If block hard still only do one damage
+                    if (block.blockType == BlockType.Hard)
+                    {
+                        TryDamageHardBlock(block, dx, dy);
+                    }
+                    else if (isNormalBlock(block.blockType))
+                    {
+                        DestroyBlock(dx, dy);
+                    }
+                }
+            }
+        }
+        StartCoroutine(ProcessGravity());
     }
 
     // Creates a list of all the falling components
@@ -470,39 +513,6 @@ public class GameBoard : MonoBehaviour
             }
         }
         SoundManager.Instance.PlaySound2D("Revive");
-    }
-    private void DestroyThree(int x, int y)
-    {
-        if (!IsValidPosition(x, y)) return;
-        if (player.tool != Tool.Hammer) return;
-        if (blockData[x, -y].blockType == BlockType.Buffer)
-        {
-            player.tool = Tool.None;
-            DestroyConnectedBlocks(x, y);
-            return;
-        }
-        
-        for (int dx = x - 1; dx < x + 2; dx++)
-        {
-            for (int dy = y; dy > y - 3; dy--)
-            {
-                Debug.Log("ATtempting to break position" + dx + ", " + dy);
-                if (IsValidPosition(dx, dy))
-                {
-                    BlockData block = blockData[dx, -dy];
-                    //If block hard still only do one damage
-                    if (block.blockType == BlockType.Hard)
-                    {
-                        TryDamageHardBlock(block, dx, dy);
-                    }
-                    else if (isNormalBlock(block.blockType))
-                    {
-                        DestroyBlock(dx, dy);
-                    }
-                }
-            }
-        }
-        StartCoroutine(ProcessGravity());
     }
 
     void TryDamageHardBlock(BlockData block, int x, int y)
