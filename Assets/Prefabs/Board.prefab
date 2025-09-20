@@ -63,15 +63,19 @@ MonoBehaviour:
   tilemapRenderer: {fileID: 0}
   tilemapCollider: {fileID: 0}
   lifeItemTile: {fileID: 11400000, guid: 41ce1b10866f34b7ea35960f6792ad4d, type: 2}
+  lifeItemAnimated:
+  - {fileID: 11400000, guid: cfcf3a965c1d84491a8fc312ce9f6041, type: 2}
+  - {fileID: 11400000, guid: 53aae2ac37c6f49f6aacbf4e9e063cf5, type: 2}
+  - {fileID: 11400000, guid: 2884d6f01deeb4903b12e107b28c56b4, type: 2}
   chanceOfLifeItem: 0.02
-  chanceOfTool: 0.005
+  chanceOfTool: 0.1
   toolTiles:
-  - {fileID: 11400000, guid: 682c27830304c41849658dacd35651a9, type: 2}
-  - {fileID: 11400000, guid: 97fd3d43291944b46a52f6991e5dbb75, type: 2}
+  - {fileID: 11400000, guid: c58275506b95743ee805523954c4eb1b, type: 2}
+  - {fileID: 11400000, guid: fb979a629cb8d4d1dbfb9fb4ee7fff06, type: 2}
   boardWidth: 8
-  boardHeight: 50
+  boardHeight: 80
   bufferHeight: 5
-  chanceOfHardBlock: 0.1
+  chanceOfHardBlock: 0.3
   fallSpeed: 2
   blockTiles:
   - {fileID: 11400000, guid: bcdae0db3fd7a4c32a94ff780946c7ea, type: 2}
