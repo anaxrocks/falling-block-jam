@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _autoJumpDelay = 0.4f; // Delay before auto-jumping
 
     [Header("References")]
-    private GameBoard _gameBoard;
+    public GameBoard _gameBoard;
     private GameBoardManager gameBoardManager;
 
     private const float GRID_OFFSET = 0.5f;
@@ -27,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     private float _lastMoveTime = 0f;
     private Vector3Int _lastMoveDirection = Vector3Int.zero;
     private bool _isContinuousMovement = false;
+    public bool isBufferBroken = false;
 
     // Auto-jump state
     private float _blockHitTime = 0f;
@@ -35,10 +36,6 @@ public class PlayerMovement : MonoBehaviour
     //Tool held
     public Tool tool = Tool.None;
     private ToolTimer toolTimer;
-    private HealthManager healthSystem;
-
-    public int dmgLow = 1;
-    public int dmgHigh = 5;
 
     void Awake()
     {
@@ -48,7 +45,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        healthSystem = GetComponent<HealthManager>();
         InitializePosition();
         toolTimer = GetComponent<ToolTimer>();
     }
@@ -125,14 +121,7 @@ public class PlayerMovement : MonoBehaviour
         BlockData blockData = _gameBoard.GetBlockData(x, y);
         if (blockData != null && blockData.blockType != BlockType.Empty)
         {
-            if (blockData.blockType == BlockType.Hard)
-            {
-                healthSystem.TakeDamage(dmgHigh);
-            }
-            else
-            {
-                healthSystem.TakeDamage(dmgLow);
-            }
+            if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
             _gameBoard.DestroyConnectedBlocks(x, y);
             toolTimer.ToolTimerTick();
             // Reset auto-jump waiting if we break a block
@@ -288,6 +277,7 @@ public class PlayerMovement : MonoBehaviour
     public void updateCurBoard(GameBoard gb)
     {
         _gameBoard = gb;
+        Debug.Log("Board is currently" + _gameBoard.name);
     }
     bool TryMove(Vector3Int direction)
     {
@@ -331,6 +321,7 @@ public class PlayerMovement : MonoBehaviour
     private void CollectLifeItem(int x, int y)
     {
         // Get health system and heal player
+        HealthManager healthSystem = GetComponent<HealthManager>();
         if (healthSystem != null)
         {
             healthSystem.OnLifeItemCollected();
@@ -360,18 +351,29 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3Int belowPos = _currentGridPosition + Vector3Int.down;
 
-        if (CanMoveToPosition(belowPos))
+        if (isBufferBroken && -_currentGridPosition.y >= _gameBoard.boardHeight - 1)
         {
-            // Check if there's a life item below us - collect it during fall
-            BlockData blockData = _gameBoard.GetBlockData(belowPos.x, belowPos.y);
-            if (blockData != null && blockData.blockType == BlockType.Life)
-            {
-                CollectLifeItem(belowPos.x, belowPos.y);
-            }
-
-            MoveToPosition(belowPos);
-            StartCoroutine(FallToTarget());
+            gameBoardManager.DestroyGameBoard();
+            InitializePosition();
+            isBufferBroken = false;            
         }
+
+        if (CanMoveToPosition(belowPos))
+            {
+                // Check if there's a life item below us - collect it during fall
+                BlockData blockData = _gameBoard.GetBlockData(belowPos.x, belowPos.y);
+                if (blockData != null && blockData.blockType == BlockType.Life)
+                {
+                    CollectLifeItem(belowPos.x, belowPos.y);
+                }
+                if (blockData != null && blockData.blockType == BlockType.Tool)
+                {
+                    CollectToolItem(belowPos.x, belowPos.y);
+                }
+
+                MoveToPosition(belowPos);
+                StartCoroutine(FallToTarget());
+            }
     }
     private bool CanMoveToPosition(Vector3Int position)
     {
@@ -387,24 +389,4 @@ public class PlayerMovement : MonoBehaviour
     {
         return CanMoveToPosition(position);
     }
-
-    // In PlayerMovement.cs, add this method to handle forced position updates:
-
-public void TeleportToPosition(Vector3 worldPosition, Vector3Int gridPosition)
-{
-    // Stop any current movement
-    _isMoving = false;
-    
-    // Update positions
-    _currentGridPosition = gridPosition;
-    _targetWorldPosition = worldPosition;
-    transform.position = worldPosition;
-    
-    // Reset movement state
-    _isContinuousMovement = false;
-    _lastMoveDirection = Vector3Int.zero;
-    ResetAutoJumpState();
-    
-    Debug.Log($"Player teleported to grid position: {gridPosition}, world position: {worldPosition}");
-}
 }

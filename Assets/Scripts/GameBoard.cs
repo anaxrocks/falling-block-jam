@@ -143,19 +143,9 @@ public class GameBoard : MonoBehaviour
 
             case BlockType.Life:
                 tileToUse = lifeItemAnimated[UnityEngine.Random.Range(0, lifeItemAnimated.Length)];
-                if (tileToUse == null)
-                {
-                    Debug.LogError("Life item tile is not assigned! Please assign a tile to lifeItemAnimated in the GameBoard inspector.");
-                    return;
-                }
                 break;
 
             case BlockType.Hard:
-                if (hardTiles == null || hardTiles.Length == 0)
-                {
-                    Debug.LogError("Hard tiles array is not set up properly!");
-                    return;
-                }
                 tileToUse = blockTiles[0]; // Full health hard block
                 break;
 
@@ -166,12 +156,6 @@ public class GameBoard : MonoBehaviour
                 break;
 
             default:
-                // Handle colored blocks (Magenta, Green, Yellow, Blue, Red)
-                if (blockTiles == null || blockTiles.Length == 0)
-                {
-                    Debug.LogError("Block tiles array is not set up properly!");
-                    return;
-                }
 
                 int colorIndex = (int)blockType - numSpecialBlocks;
                 if (colorIndex < 0 || colorIndex >= blockTiles.Length)
@@ -186,23 +170,11 @@ public class GameBoard : MonoBehaviour
 
         if (tileToUse == null)
         {
-            Debug.LogError($"No tile assigned for blockType: {blockType}");
             return;
         }
 
         // Set the tile
         tilemap.SetTile(position, tileToUse);
-
-        // Verify it was set correctly
-        TileBase verifyTile = tilemap.GetTile(position);
-        if (verifyTile == null)
-        {
-            Debug.LogError($"Failed to place tile for {blockType} at ({x}, {y})");
-        }
-        else
-        {
-            Debug.Log($"Successfully placed {blockType} tile at ({x}, {y})");
-        }
     }
 
     //x,y should be positive
@@ -272,46 +244,6 @@ public class GameBoard : MonoBehaviour
             TryDamageHardBlock(targetBlock, x, y);
             return;
         }
-
-        if (targetType == BlockType.Buffer)
-        {
-            HashSet<Vector2Int> connectedBuffers = new HashSet<Vector2Int>();
-            Queue<Vector2Int> toCheck1 = new Queue<Vector2Int>();
-
-            toCheck1.Enqueue(new Vector2Int(x, y));
-            connectedBuffers.Add(new Vector2Int(x, y));
-
-            // Find all connected buffer blocks
-            while (toCheck1.Count > 0)
-            {
-                Vector2Int current = toCheck1.Dequeue();
-                Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-
-                foreach (Vector2Int dir in directions)
-                {
-                    Vector2Int neighbor = current + dir;
-                    if (IsValidPosition(neighbor.x, neighbor.y) &&
-                        !connectedBuffers.Contains(neighbor) &&
-                        blockData[neighbor.x, -neighbor.y].blockType == BlockType.Buffer)
-                    {
-                        connectedBuffers.Add(neighbor);
-                        toCheck1.Enqueue(neighbor);
-                    }
-                }
-            }
-
-            SoundManager.Instance.PlaySound2D("SoftBreak");
-
-            // Destroy connected buffer blocks
-            foreach (Vector2Int pos in connectedBuffers)
-            {
-                DestroyBlock(pos.x, pos.y);
-            }
-
-            // Trigger board transition
-            GameBoardManager.Instance.TriggerBoardTransition();
-            return;
-        } 
 
         HashSet<Vector2Int> connectedBlocks = new HashSet<Vector2Int>();
         Queue<Vector2Int> toCheck = new Queue<Vector2Int>();
@@ -543,7 +475,13 @@ public class GameBoard : MonoBehaviour
     {
         if (!IsValidPosition(x, y)) return;
         if (player.tool != Tool.Hammer) return;
-
+        if (blockData[x, -y].blockType == BlockType.Buffer)
+        {
+            player.tool = Tool.None;
+            DestroyConnectedBlocks(x, y);
+            return;
+        }
+        
         for (int dx = x - 1; dx < x + 2; dx++)
         {
             for (int dy = y; dy > y - 3; dy--)
@@ -574,7 +512,7 @@ public class GameBoard : MonoBehaviour
         block.Damage();
         if (player.tool == Tool.Pickaxe)
         {
-            SoundManager.Instance.PlaySound2D("Pickaxe");   
+            SoundManager.Instance.PlaySound2D("Pickaxe");
         }
 
         if (player.tool == Tool.Pickaxe || block.Health() <= 0)
@@ -638,4 +576,12 @@ public class GameBoard : MonoBehaviour
             }
         }
     }
+
+    // private void OnCollisionEnter2D(Collision2D collision)
+    // {
+    //     if (collision.collider.CompareTag("Player"))
+    //     {
+    //         player.isFallingToNextBoard = false;
+    //     }
+    // }
 }
