@@ -60,10 +60,19 @@ public class BlockCollisionDetector : MonoBehaviour
         CheckPositionForBlocks(currentPlayerPos);
     }
 
+// In BlockCollisionDetector (CheckBlockCollision.cs), add this method:
+
+public void UpdateGameBoard(GameBoard newGameBoard)
+{
+    gameBoard = newGameBoard;
+    // Reset last position to force collision check on new board
+    lastPlayerPosition = new Vector3Int(int.MinValue, int.MinValue, 0);
+    Debug.Log("BlockCollisionDetector updated to new GameBoard");
+}
     private void CheckPositionForBlocks(Vector3Int playerPos)
     {
         BlockData currentBlock = gameBoard.GetBlockData(playerPos.x, playerPos.y);
-        
+
         if (currentBlock == null) return;
 
         // Handle different block types

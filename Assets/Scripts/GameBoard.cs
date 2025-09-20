@@ -273,6 +273,46 @@ public class GameBoard : MonoBehaviour
             return;
         }
 
+        if (targetType == BlockType.Buffer)
+        {
+            HashSet<Vector2Int> connectedBuffers = new HashSet<Vector2Int>();
+            Queue<Vector2Int> toCheck1 = new Queue<Vector2Int>();
+
+            toCheck1.Enqueue(new Vector2Int(x, y));
+            connectedBuffers.Add(new Vector2Int(x, y));
+
+            // Find all connected buffer blocks
+            while (toCheck1.Count > 0)
+            {
+                Vector2Int current = toCheck1.Dequeue();
+                Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+
+                foreach (Vector2Int dir in directions)
+                {
+                    Vector2Int neighbor = current + dir;
+                    if (IsValidPosition(neighbor.x, neighbor.y) &&
+                        !connectedBuffers.Contains(neighbor) &&
+                        blockData[neighbor.x, -neighbor.y].blockType == BlockType.Buffer)
+                    {
+                        connectedBuffers.Add(neighbor);
+                        toCheck1.Enqueue(neighbor);
+                    }
+                }
+            }
+
+            SoundManager.Instance.PlaySound2D("SoftBreak");
+
+            // Destroy connected buffer blocks
+            foreach (Vector2Int pos in connectedBuffers)
+            {
+                DestroyBlock(pos.x, pos.y);
+            }
+
+            // Trigger board transition
+            GameBoardManager.Instance.TriggerBoardTransition();
+            return;
+        } 
+
         HashSet<Vector2Int> connectedBlocks = new HashSet<Vector2Int>();
         Queue<Vector2Int> toCheck = new Queue<Vector2Int>();
 

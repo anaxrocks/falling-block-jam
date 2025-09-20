@@ -73,7 +73,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c58275506b95743ee805523954c4eb1b, type: 2}
   - {fileID: 11400000, guid: fb979a629cb8d4d1dbfb9fb4ee7fff06, type: 2}
   boardWidth: 8
-  boardHeight: 80
+  boardHeight: 30
   bufferHeight: 5
   chanceOfHardBlock: 0.3
   fallSpeed: 2

@@ -118,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
         if (!_gameBoard.IsValidPosition(x, y)) return;
 
         BlockData blockData = _gameBoard.GetBlockData(x, y);
-        if (blockData != null && blockData.blockType != BlockType.Empty && blockData.blockType != BlockType.Buffer)
+        if (blockData != null && blockData.blockType != BlockType.Empty)
         {
             _gameBoard.DestroyConnectedBlocks(x, y);
             toolTimer.ToolTimerTick();
@@ -375,4 +375,24 @@ public class PlayerMovement : MonoBehaviour
     {
         return CanMoveToPosition(position);
     }
+
+    // In PlayerMovement.cs, add this method to handle forced position updates:
+
+public void TeleportToPosition(Vector3 worldPosition, Vector3Int gridPosition)
+{
+    // Stop any current movement
+    _isMoving = false;
+    
+    // Update positions
+    _currentGridPosition = gridPosition;
+    _targetWorldPosition = worldPosition;
+    transform.position = worldPosition;
+    
+    // Reset movement state
+    _isContinuousMovement = false;
+    _lastMoveDirection = Vector3Int.zero;
+    ResetAutoJumpState();
+    
+    Debug.Log($"Player teleported to grid position: {gridPosition}, world position: {worldPosition}");
+}
 }

@@ -47,6 +47,44 @@ public class GameBoardManager : MonoBehaviour
         curBoard = CreateGameBoard(Vector3.zero);
     }
 
+    // In GameBoardManager.cs, add this new method:
+
+// In GameBoardManager.cs, add this new method:
+
+public void TriggerBoardTransition()
+{
+    if (activeBoards.Count < 2) return; // Need at least 2 boards to transition
+
+    // Remove the current board from the queue
+    GameBoard oldBoard = activeBoards.Dequeue();
+    
+    // Set the next board as current
+    curBoard = activeBoards.Peek();
+    
+    // Update player's board reference
+    player.updateCurBoard(curBoard);
+    
+    // Teleport player to starting position of new board (top-left)
+    Vector3Int startingGridPos = new Vector3Int(0, 0, 0);
+    Vector3 corner = curBoard.CellToWorld(startingGridPos);
+    Vector3 startingWorldPos = new Vector3(corner.x + 0.5f, corner.y + 0.5f, 0);
+    
+    // Update player position using the teleport method
+    player.TeleportToPosition(startingWorldPos, startingGridPos);
+    
+    // Update collision detector's board reference if it exists
+    BlockCollisionDetector collisionDetector = player.GetComponent<BlockCollisionDetector>();
+    if (collisionDetector != null)
+    {
+        collisionDetector.UpdateGameBoard(curBoard);
+    }
+    
+    // Destroy the old board
+    Destroy(oldBoard.gameObject, 0.1f);
+    
+    Debug.Log("Board transition completed - player teleported to new board starting position");
+}
+
     GameBoard CreateGameBoard(Vector3 position)
     {
         GameObject newGB = Instantiate(gameBoardPrefab, position, Quaternion.identity);
