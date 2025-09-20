@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private float _blockHitTime = 0f;
     private Vector3Int _blockedDirection = Vector3Int.zero;
     private bool _isWaitingForAutoJump = false;
+
     //Tool held
     public Tool tool = Tool.None;
     private ToolTimer toolTimer;
@@ -67,7 +68,6 @@ public class PlayerMovement : MonoBehaviour
         _gameBoard = gameBoardManager.curBoard;
         Vector3 pos = transform.position;
         _currentGridPosition = _gameBoard.WorldToCell(new Vector3(pos.x - GRID_OFFSET, pos.y - GRID_OFFSET, 0));
-
         Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
         _targetWorldPosition = new Vector3(corner.x + GRID_OFFSET, corner.y + GRID_OFFSET, 0);
         transform.position = _targetWorldPosition;
@@ -77,15 +77,28 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!InputManager.attackPressed) return;
 
+        // Check if attack is on cooldown
+        if (!toolTimer.CanAttack()) 
+        {
+            Debug.Log($"Attack on cooldown! Time remaining: {toolTimer.GetAttackCooldownRemaining():F2}s");
+            return;
+        }
+
         Vector3Int attackDirection = GetAttackDirection();
         Vector3Int targetPos = _currentGridPosition + attackDirection;
-        BreakBlock(targetPos.x, targetPos.y);
+        
+        // Attempt to break block
+        bool blockBroken = BreakBlock(targetPos.x, targetPos.y);
+        
+        // Only trigger cooldown if we actually attempted an attack
+        // (even if no block was broken, we still "used" our attack)
+        toolTimer.OnAttackMade();
     }
 
     private Vector3Int GetAttackDirection()
     {
         Vector2 input = InputManager.movement;
-
+        
         // Check movement input first
         if (input.magnitude > MOVEMENT_THRESHOLD)
         {
@@ -119,10 +132,10 @@ public class PlayerMovement : MonoBehaviour
         return direction.y > 0 ? Vector3Int.up : Vector3Int.down;
     }
 
-    void BreakBlock(int x, int y)
+    bool BreakBlock(int x, int y)
     {
-        if (!_gameBoard.IsValidPosition(x, y)) return;
-
+        if (!_gameBoard.IsValidPosition(x, y)) return false;
+        
         BlockData blockData = _gameBoard.GetBlockData(x, y);
         if (blockData != null && blockData.blockType != BlockType.Empty)
         {
@@ -136,7 +149,21 @@ public class PlayerMovement : MonoBehaviour
                 healthSystem.TakeDamage(dmgLow);
             }
             _gameBoard.DestroyConnectedBlocks(x, y);
+            
+            // Handle different tool effects
+            if (tool == Tool.Hammer)
+            {
+                // Hammer breaks 3x3 area
+                BreakHammerArea(x, y);
+            }
+            else
+            {
+                // Normal or pickaxe breaking
+                _gameBoard.DestroyConnectedBlocks(x, y);
+            }
+            
             toolTimer.ToolTimerTick();
+
             // Reset auto-jump waiting if we break a block
             if (_isWaitingForAutoJump && (_blockedDirection == Vector3Int.right && x == _currentGridPosition.x + 1) ||
                 (_blockedDirection == Vector3Int.left && x == _currentGridPosition.x - 1))
@@ -145,14 +172,35 @@ public class PlayerMovement : MonoBehaviour
                 _blockedDirection = Vector3Int.zero;
             }
 
-            Debug.Log($"Breaking block at ({x}, {y}) of type: {blockData.blockType}");
+            Debug.Log($"Breaking block at ({x}, {y}) of type: {blockData.blockType} with {tool}");
+            return true;
+        }
+        return false;
+    }
+
+    // Helper method for hammer 3x3 breaking
+    private void BreakHammerArea(int centerX, int centerY)
+    {
+        for (int x = centerX - 1; x <= centerX + 1; x++)
+        {
+            for (int y = centerY - 1; y <= centerY + 1; y++)
+            {
+                if (_gameBoard.IsValidPosition(x, y))
+                {
+                    BlockData blockData = _gameBoard.GetBlockData(x, y);
+                    if (blockData != null && blockData.blockType != BlockType.Empty)
+                    {
+                        if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
+                        _gameBoard.DestroyConnectedBlocks(x, y);
+                    }
+                }
+            }
         }
     }
 
     void HandleInput()
     {
         Vector2 input = InputManager.movement;
-
         if (input.magnitude > MOVEMENT_THRESHOLD)
         {
             Vector3Int direction = GetDirectionFromInput(input);
@@ -250,16 +298,15 @@ public class PlayerMovement : MonoBehaviour
         while (_isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, _targetWorldPosition, _fallSpeed * Time.deltaTime);
-
             if (Vector3.Distance(transform.position, _targetWorldPosition) < POSITION_TOLERANCE)
             {
                 transform.position = _targetWorldPosition;
                 _isMoving = false;
             }
-
             yield return null;
         }
     }
+
     bool TryAutoJump(Vector3Int horizontalDirection)
     {
         if (!IsHorizontalDirection(horizontalDirection)) return false;
@@ -273,9 +320,9 @@ public class PlayerMovement : MonoBehaviour
             MoveToPosition(jumpTarget);
             return true;
         }
-
         return false;
     }
+
     void MoveToPosition(Vector3Int gridPosition)
     {
         _currentGridPosition = gridPosition;
@@ -283,24 +330,25 @@ public class PlayerMovement : MonoBehaviour
         _targetWorldPosition = new Vector3(corner.x + GRID_OFFSET, corner.y + GRID_OFFSET, 0);
         _isMoving = true;
     }
+
     public Vector3Int GetCurrentGridPosition()
     {
         return _currentGridPosition;
     }
+
     public void updateCurBoard(GameBoard gb)
     {
         _gameBoard = gb;
         Debug.Log("Board is currently" + _gameBoard.name);
     }
+
     bool TryMove(Vector3Int direction)
     {
         Vector3Int newPos = _currentGridPosition + direction;
-
         if (!_gameBoard.IsValidPosition(newPos.x, newPos.y))
             return false;
 
         BlockData blockData = _gameBoard.GetBlockData(newPos.x, newPos.y);
-
         if (blockData == null)
             return false;
 
@@ -318,6 +366,7 @@ public class PlayerMovement : MonoBehaviour
             MoveToPosition(newPos);
             return true;
         }
+
         // tool --> collect it and allow movement
         if (blockData.blockType == BlockType.Tool)
         {
@@ -346,10 +395,10 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(_gameBoard.ProcessGravity());
 
         Debug.Log($"Collected life item at ({x}, {y})!");
-
         SoundManager.Instance.PlaySound2D("PicturePickup");
         print("powerpickup sound");
     }
+
     public void CollectToolItem(int x, int y)
     {
         tool = _gameBoard.GetBlockData(x, y).tool;
@@ -357,6 +406,7 @@ public class PlayerMovement : MonoBehaviour
         toolTimer.StartTimer(tool);
         StartCoroutine(_gameBoard.ProcessGravity());
     }
+
     void CheckGravity()
     {
         if (_isMoving) return;
@@ -371,22 +421,23 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (CanMoveToPosition(belowPos))
+        {
+            // Check if there's a life item below us - collect it during fall
+            BlockData blockData = _gameBoard.GetBlockData(belowPos.x, belowPos.y);
+            if (blockData != null && blockData.blockType == BlockType.Life)
             {
-                // Check if there's a life item below us - collect it during fall
-                BlockData blockData = _gameBoard.GetBlockData(belowPos.x, belowPos.y);
-                if (blockData != null && blockData.blockType == BlockType.Life)
-                {
-                    CollectLifeItem(belowPos.x, belowPos.y);
-                }
-                if (blockData != null && blockData.blockType == BlockType.Tool)
-                {
-                    CollectToolItem(belowPos.x, belowPos.y);
-                }
-
-                MoveToPosition(belowPos);
-                StartCoroutine(FallToTarget());
+                CollectLifeItem(belowPos.x, belowPos.y);
             }
+            if (blockData != null && blockData.blockType == BlockType.Tool)
+            {
+                CollectToolItem(belowPos.x, belowPos.y);
+            }
+
+            MoveToPosition(belowPos);
+            StartCoroutine(FallToTarget());
+        }
     }
+
     private bool CanMoveToPosition(Vector3Int position)
     {
         if (!_gameBoard.IsValidPosition(position.x, position.y)) return false;
@@ -397,6 +448,7 @@ public class PlayerMovement : MonoBehaviour
         // Can move to empty spaces or life items
         return blockData.blockType == BlockType.Empty || blockData.blockType == BlockType.Life;
     }
+
     private bool IsEmptySpace(Vector3Int position)
     {
         return CanMoveToPosition(position);
