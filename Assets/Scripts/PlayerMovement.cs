@@ -37,6 +37,10 @@ public class PlayerMovement : MonoBehaviour
     //Tool held
     public Tool tool = Tool.None;
     private ToolTimer toolTimer;
+    private HealthManager healthSystem;
+
+    public int dmgLow = 1;
+    public int dmgHigh = 5;
 
     void Awake()
     {
@@ -48,6 +52,7 @@ public class PlayerMovement : MonoBehaviour
     {
         InitializePosition();
         toolTimer = GetComponent<ToolTimer>();
+        healthSystem = GetComponent<HealthManager>();
     }
 
     void Update()
@@ -135,6 +140,14 @@ public class PlayerMovement : MonoBehaviour
         if (blockData != null && blockData.blockType != BlockType.Empty)
         {
             if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
+             if (blockData.blockType == BlockType.Hard)
+            {
+                healthSystem.TakeDamage(dmgHigh);
+            }
+            else
+            {
+                healthSystem.TakeDamage(dmgLow);
+            }
             
             // Handle different tool effects
             if (tool == Tool.Hammer)
