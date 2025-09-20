@@ -38,7 +38,7 @@ public class GameBoardManager : MonoBehaviour
         if (curBoard)
         {
             CheckForNewBoardLoading();
-            CheckforDestroyBoard();
+            // CheckforDestroyBoard();
         }
     }
 
@@ -60,14 +60,14 @@ public class GameBoardManager : MonoBehaviour
         return newBoard;
     }
 
-    void DestroyGameBoard()
+    public void DestroyGameBoard()
     {
         if (activeBoards.Count > 1)
         {
             GameBoard gb = activeBoards.Dequeue();
             curBoard = activeBoards.Peek();
-            player.updateCurBoard(curBoard);
-            Destroy(gb.gameObject, 0.1f);
+            player._gameBoard = curBoard;
+            Destroy(gb.gameObject);
             destroying = false;
             created = false;
         }
@@ -99,7 +99,7 @@ public class GameBoardManager : MonoBehaviour
         Vector3Int playerCellPos = oldest.WorldToCell(playerTransform.position);
         float distanceToBufferStart = playerCellPos.y - (-oldest.getLevelHeight());
 
-        if (distanceToBufferStart > 0 && curBoard.bufferDestroyed && !destroying)
+        if (playerCellPos.y == oldest.boardHeight - 2 && !destroying)
         {
             destroying = true;
             DestroyGameBoard();

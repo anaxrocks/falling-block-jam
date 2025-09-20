@@ -944,6 +944,8 @@ MonoBehaviour:
   _fallSpeed: 2
   _continuousMovementDelay: 0.2
   _autoJumpDelay: 0.4
+  _gameBoard: {fileID: 0}
+  isBufferBroken: 0
   tool: 0
 --- !u!212 &1305510541
 SpriteRenderer:
@@ -1104,9 +1106,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3825da6c2f61745438deb6b33fd9b165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameBoardPrefab: {fileID: 1053220236762184505, guid: 48755be5bdf33427bb1427eb3c8e1ec8, type: 3}
+  gameBoardPrefab: {fileID: 1053220236762184505, guid: adbbcc1c44d2a458fb242d71c23ac186, type: 3}
   distanceToLoad: 10
-  playerTransform: {fileID: 0}
+  playerTransform: {fileID: 1305510542}
   curBoard: {fileID: 1120525108}
 --- !u!4 &1363414901
 Transform:
