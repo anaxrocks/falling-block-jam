@@ -44,6 +44,10 @@ public class ToolTimer : MonoBehaviour
         if (blocksDestroyed == toolTimer)
         {
             player.tool = Tool.None;
+            if (player._animator != null)
+            {
+                player._animator.SetInteger("Tool", (int)Tool.None);
+            } 
         }
     }
 
@@ -94,6 +98,10 @@ public class ToolTimer : MonoBehaviour
         if (player != null)
         {
             player.tool = Tool.None;
+            if (player._animator != null)
+            {
+                player._animator.SetInteger("Tool", (int)Tool.None);
+            }  
         }
 
         Debug.Log("Tool timer reset");

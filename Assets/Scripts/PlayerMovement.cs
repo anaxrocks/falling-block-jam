@@ -42,6 +42,8 @@ public class PlayerMovement : MonoBehaviour
     public int dmgLow = 1;
     public int dmgHigh = 5;
     public BlockCollisionDetector blockCollisionDetector;
+    public Animator _animator;
+    private SpriteRenderer _spriteRenderer;
 
     void Awake()
     {
@@ -51,6 +53,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
         InitializePosition();
         toolTimer = GetComponent<ToolTimer>();
         healthSystem = GetComponent<HealthManager>();
@@ -107,6 +111,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3Int attackDirection = GetAttackDirection();
         Vector3Int targetPos = _currentGridPosition + attackDirection;
 
+        TriggerAttackAnimation(attackDirection);
+
         // Attempt to break block
         bool blockBroken = BreakBlock(targetPos.x, targetPos.y);
 
@@ -114,6 +120,42 @@ public class PlayerMovement : MonoBehaviour
         // (even if no block was broken, we still "used" our attack)
         toolTimer.OnAttackMade();
     }
+
+    public void TriggerAttackAnimation(Vector3Int attackDirection)
+    {
+        if (_animator == null) return;
+        
+        // Handle sprite flipping for horizontal attacks
+        if (attackDirection == Vector3Int.left)
+        {
+            // Flip sprite to face left
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.flipX = true;
+            }
+            // Trigger side attack animation
+            _animator.SetTrigger("Side");
+            Debug.Log("Attack Left - Sprite flipped, Side animation triggered");
+        }
+        else if (attackDirection == Vector3Int.right)
+        {
+            // Don't flip sprite (face right)
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.flipX = false;
+            }
+            // Trigger side attack animation
+            _animator.SetTrigger("Side");
+            Debug.Log("Attack Right - Sprite normal, Side animation triggered");
+        }
+        else if (attackDirection == Vector3Int.down)
+        {
+            // Trigger down attack animation
+            _animator.SetTrigger("Down");
+            Debug.Log("Attack Down - Down animation triggered");
+        }
+    }
+    
 
     private Vector3Int GetAttackDirection()
     {
@@ -361,6 +403,22 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("Board is currently" + _gameBoard.name);
     }
 
+    private void HandleMovementSpriteFlipping(Vector3Int moveDirection)
+    {
+        if (_spriteRenderer == null) return;
+        
+        // Only flip for horizontal movement to avoid conflicting with attack flipping
+        if (moveDirection == Vector3Int.left)
+        {
+            _spriteRenderer.flipX = true;
+        }
+        else if (moveDirection == Vector3Int.right)
+        {
+            _spriteRenderer.flipX = false;
+        }
+        // Don't change flip state for vertical movement
+    }
+
     bool TryMove(Vector3Int direction)
     {
         Vector3Int newPos = _currentGridPosition + direction;
@@ -370,6 +428,8 @@ public class PlayerMovement : MonoBehaviour
         BlockData blockData = _gameBoard.GetBlockData(newPos.x, newPos.y);
         if (blockData == null)
             return false;
+
+        HandleMovementSpriteFlipping(direction);
 
         // life item --> collect it and allow movement
         if (blockData.blockType == BlockType.Life)
@@ -422,6 +482,8 @@ public class PlayerMovement : MonoBehaviour
     public void CollectToolItem(int x, int y)
     {
         tool = _gameBoard.GetBlockData(x, y).tool;
+        // Set animator parameter to the tool enum value (cast to int)
+        _animator.SetInteger("Tool", (int)tool);
         _gameBoard.DestroyBlock(x, y);
         toolTimer.StartTimer(tool);
         StartCoroutine(_gameBoard.ProcessGravity());
@@ -481,8 +543,13 @@ public class PlayerMovement : MonoBehaviour
     // Reset tool state
     tool = Tool.None;
     
+    if (_animator != null)
+    {
+        _animator.SetInteger("Tool", (int)Tool.None);
+    }
+    
     // Reset movement state
-    _isMoving = false;
+        _isMoving = false;
     _lastMoveTime = 0f;
     _lastMoveDirection = Vector3Int.zero;
     _isContinuousMovement = false;
