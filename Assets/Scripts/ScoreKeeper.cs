@@ -16,7 +16,7 @@ public class ScoreKeeper : MonoBehaviour
         gameBoardManager = FindAnyObjectByType<GameBoardManager>();
         score = 0;
         startingPos = player.transform.position;
-        scoreText.text = "Score: 0";
+        scoreText.text = "0";
     }
 
     // Update is called once per frame
@@ -30,7 +30,7 @@ public class ScoreKeeper : MonoBehaviour
         Vector3Int start = gameBoardManager.curBoard.WorldToCell(startingPos);
         Vector3Int cur = gameBoardManager.curBoard.WorldToCell(player.transform.position);
         score = (int)Mathf.Max(score, start.y - cur.y);
-        scoreText.text = $"Score: {score}";
+        scoreText.text = $"{score}";
     }
 
     public void ResetScore()
@@ -38,7 +38,7 @@ public class ScoreKeeper : MonoBehaviour
         score = 0;
         if (scoreText != null)
         {
-            scoreText.text = "Score: 0";
+            scoreText.text = "0";
         }
 
         // Update starting position reference

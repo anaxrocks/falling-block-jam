@@ -67,7 +67,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cfcf3a965c1d84491a8fc312ce9f6041, type: 2}
   - {fileID: 11400000, guid: 53aae2ac37c6f49f6aacbf4e9e063cf5, type: 2}
   - {fileID: 11400000, guid: 2884d6f01deeb4903b12e107b28c56b4, type: 2}
-  chanceOfLifeItem: 0.005
+  chanceOfLifeItem: 0.003
   numSpecialBlocks: 5
   chanceOfTool: 0
   toolTiles:
