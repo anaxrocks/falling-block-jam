@@ -472,7 +472,7 @@ public class PlayerMovement : MonoBehaviour
     public void CollectToolItem(int x, int y)
     {
         tool = _gameBoard.GetBlockData(x, y).tool;
-        // Set animator parameter to the tool enum value (cast to int)
+        SoundManager.Instance.PlaySound2D("GenPickup");
         _animator.SetInteger("Tool", (int)tool);
         _gameBoard.DestroyBlock(x, y);
         toolTimer.StartTimer(tool);
