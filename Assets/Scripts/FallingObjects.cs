@@ -16,8 +16,6 @@ public class FallingObject : MonoBehaviour
     private bool hasHitPlayer = false;
     private Transform spriteTransform; // Reference to the child sprite object
 
-    private HealthManager healthSystem;
-
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -26,7 +24,6 @@ public class FallingObject : MonoBehaviour
         rb.gravityScale = 0; // We'll control movement manually for consistency
         rb.linearVelocity = Vector2.down * fallSpeed;
         spriteTransform = transform.Find("RockSprite");
-
 
         // Destroy the rock after lifetime to prevent memory leaks
         Destroy(gameObject, lifetime);
@@ -39,10 +36,23 @@ public class FallingObject : MonoBehaviour
         {
             hasHitPlayer = true;
             
+            SoundManager.Instance.PlaySound2D("Die");
+            
             // Deal damage to player
-            healthSystem = FindFirstObjectByType<HealthManager>();
-            healthSystem.TakeDamage(damage);
-                        
+            HealthManager healthSystem = other.GetComponent<HealthManager>();
+            if (healthSystem != null)
+            {
+                healthSystem.TakeDamage(damage);
+            }
+            
+            // Trigger visual flash effect
+            BlockCollisionDetector collisionDetector = other.GetComponent<BlockCollisionDetector>();
+            if (collisionDetector != null)
+            {
+                collisionDetector.TriggerInvulnerabilityFlash();
+            }
+            
+            
             // Destroy the rock
             Destroy(gameObject);
         }

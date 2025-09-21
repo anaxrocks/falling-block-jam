@@ -7,7 +7,7 @@ public class BlockCollisionDetector : MonoBehaviour
     [SerializeField] private LayerMask blockLayerMask = -1;
     [SerializeField] private float detectionRadius = 0.4f;
     [SerializeField] private float damageInvulnerabilityTime = 1f;
-    
+
     private PlayerMovement playerMovement;
     private HealthManager healthSystem;
     public GameBoard gameBoard;
@@ -19,7 +19,7 @@ public class BlockCollisionDetector : MonoBehaviour
     {
         playerMovement = GetComponent<PlayerMovement>();
         healthSystem = GetComponent<HealthManager>();
-        
+
         if (healthSystem == null)
         {
             Debug.LogError("HealthSystem component not found on player!");
@@ -48,14 +48,14 @@ public class BlockCollisionDetector : MonoBehaviour
         if (gameBoard == null || healthSystem == null || isInvulnerable) return;
 
         Vector3Int currentPlayerPos = playerMovement.GetCurrentGridPosition();
-        
+
         // Check if player moved to a new position
         if (currentPlayerPos != lastPlayerPosition)
         {
             CheckPositionForBlocks(currentPlayerPos);
             lastPlayerPosition = currentPlayerPos;
         }
-        
+
         // Also check current position in case blocks fell onto player
         CheckPositionForBlocks(currentPlayerPos);
     }
@@ -63,7 +63,7 @@ public class BlockCollisionDetector : MonoBehaviour
     private void CheckPositionForBlocks(Vector3Int playerPos)
     {
         BlockData currentBlock = gameBoard.GetBlockData(playerPos.x, playerPos.y);
-        
+
         if (currentBlock == null) return;
 
         // Handle different block types
@@ -126,7 +126,7 @@ public class BlockCollisionDetector : MonoBehaviour
     {
         isInvulnerable = true;
         lastDamageTime = Time.time;
-        
+
         // Visual feedback for invulnerability
         StartCoroutine(InvulnerabilityFlash());
     }
@@ -169,7 +169,7 @@ public class BlockCollisionDetector : MonoBehaviour
     public bool IsPlayerInDanger()
     {
         if (gameBoard == null) return false;
-        
+
         Vector3Int playerPos = playerMovement.GetCurrentGridPosition();
         return gameBoard.IsPlayerInDanger(playerPos);
     }
@@ -179,7 +179,7 @@ public class BlockCollisionDetector : MonoBehaviour
         // Visualize detection area in the editor
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        
+
         // Draw player grid position
         if (playerMovement != null)
         {
@@ -188,5 +188,11 @@ public class BlockCollisionDetector : MonoBehaviour
             Gizmos.color = Color.blue;
             Gizmos.DrawWireCube(worldPos, Vector3.one * 0.9f);
         }
+    }
+
+    public void TriggerInvulnerabilityFlash()
+    {
+        // Just trigger the visual flash effect without setting invulnerability
+        StartCoroutine(InvulnerabilityFlash());
     }
 }
