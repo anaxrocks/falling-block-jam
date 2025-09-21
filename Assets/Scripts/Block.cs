@@ -47,7 +47,7 @@ public class BlockData
     }
     public bool IsCollectible()
     {
-        return blockType == BlockType.Life;
+        return blockType == BlockType.Life || blockType == BlockType.Tool;
     }
     public void SetTool(int num)
     {

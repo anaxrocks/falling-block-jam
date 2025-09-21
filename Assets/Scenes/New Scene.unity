@@ -905,6 +905,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   detectionRadius: 0.4
   damageInvulnerabilityTime: 1
+  gameBoard: {fileID: 0}
 --- !u!114 &1305510539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -947,6 +948,9 @@ MonoBehaviour:
   _gameBoard: {fileID: 0}
   isBufferBroken: 0
   tool: 0
+  dmgLow: 1
+  dmgHigh: 5
+  blockCollisionDetector: {fileID: 0}
 --- !u!212 &1305510541
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1032,6 +1036,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hammerDurationInBlocks: 5
   pickaxeDurationInBlocks: 10
+  noneToolCooldown: 0.5
+  pickaxeCooldown: 0.2
+  hammerCooldown: 0.6
 --- !u!1 &1350514042
 GameObject:
   m_ObjectHideFlags: 0
@@ -1061,6 +1068,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8035b2f8ad4448629f1a7146d749aa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  score: 0
   scoreText: {fileID: 435304958}
 --- !u!4 &1350514044
 Transform:
@@ -1110,6 +1118,7 @@ MonoBehaviour:
   distanceToLoad: 10
   playerTransform: {fileID: 1305510542}
   curBoard: {fileID: 1120525108}
+  highScore: 0
 --- !u!4 &1363414901
 Transform:
   m_ObjectHideFlags: 0
