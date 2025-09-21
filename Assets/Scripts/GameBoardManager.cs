@@ -6,7 +6,10 @@ using UnityEngine;
 public class GameBoardManager : MonoBehaviour
 {
     public static GameBoardManager Instance;
-    public GameObject gameBoardPrefab;
+    public GameObject[] gameBoardPrefabs;
+    public float chanceEasy = 0.1f;
+    public float chanceMedium = 0.4f;
+    public float chanceHard = 0.5f;
     public int distanceToLoad = 10;
     public Transform playerTransform;
     public Queue<GameBoard> activeBoards = new Queue<GameBoard>();
@@ -16,6 +19,7 @@ public class GameBoardManager : MonoBehaviour
     private bool created = false;
     private PlayerMovement player;
     public int highScore = 0;
+    public bool firstGame = true;
 
     void Awake()
     {
@@ -52,7 +56,16 @@ public class GameBoardManager : MonoBehaviour
 
     GameBoard CreateGameBoard(Vector3 position)
     {
-        GameObject newGB = Instantiate(gameBoardPrefab, position, Quaternion.identity);
+        float rng = UnityEngine.Random.Range(0.0f, 1.0f);
+        int idx;
+        if (firstGame) idx = 1;
+        else
+        {
+            if (rng < chanceEasy) idx = 0;
+            else if (rng < chanceMedium) idx = 1;
+            else idx = 2;
+        }
+        GameObject newGB = Instantiate(gameBoardPrefabs[idx], position, Quaternion.identity);
         newGB.name = $"GameBoard_{boardCounter}";
         newGB.transform.parent = this.transform;
 

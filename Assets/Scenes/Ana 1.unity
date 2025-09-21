@@ -1219,9 +1219,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hammerDurationInBlocks: 5
   pickaxeDurationInBlocks: 10
-  noneToolCooldown: 0.5
-  pickaxeCooldown: 0.2
-  hammerCooldown: 0.4
+  noneToolCooldown: 0.3
+  pickaxeCooldown: 0.1
+  hammerCooldown: 0.35
 --- !u!114 &771869265
 MonoBehaviour:
   m_ObjectHideFlags: 0
