@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 103916332429288446}
   - component: {fileID: 2089347791326757847}
   m_Layer: 0
-  m_Name: Board_test
+  m_Name: HardBoard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,16 +67,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cfcf3a965c1d84491a8fc312ce9f6041, type: 2}
   - {fileID: 11400000, guid: 53aae2ac37c6f49f6aacbf4e9e063cf5, type: 2}
   - {fileID: 11400000, guid: 2884d6f01deeb4903b12e107b28c56b4, type: 2}
-  chanceOfLifeItem: 0.02
-  chanceOfTool: 0.1
+  chanceOfLifeItem: 0.05
+  numSpecialBlocks: 5
+  chanceOfTool: 0.01
   toolTiles:
   - {fileID: 11400000, guid: c58275506b95743ee805523954c4eb1b, type: 2}
   - {fileID: 11400000, guid: fb979a629cb8d4d1dbfb9fb4ee7fff06, type: 2}
   boardWidth: 8
-  boardHeight: 10
-  bufferHeight: 2
-  chanceOfHardBlock: 0.1
+  boardHeight: 50
+  bufferHeight: 10
+  chanceOfHardBlock: 0.4
   fallSpeed: 2
+  numberOfColoredBlocksToUse: 5
   blockTiles:
   - {fileID: 11400000, guid: bcdae0db3fd7a4c32a94ff780946c7ea, type: 2}
   - {fileID: 11400000, guid: 63fa33e38720846428de71bad75c89e5, type: 2}

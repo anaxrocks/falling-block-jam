@@ -210,18 +210,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 healthSystem.TakeDamage(dmgLow);
             }
-
-            // Handle different tool effects
-            if (tool == Tool.Hammer)
-            {
-                // Hammer breaks 3x3 area
-                BreakHammerArea(x, y);
-            }
-            else
-            {
-                // Normal or pickaxe breaking
-                _gameBoard.DestroyConnectedBlocks(x, y);
-            }
+            //Destory Connected blocks takes care of both pickaxe and hammer case
+            _gameBoard.DestroyConnectedBlocks(x, y);
 
             toolTimer.ToolTimerTick();
 
@@ -239,25 +229,25 @@ public class PlayerMovement : MonoBehaviour
         return false;
     }
 
-    // Helper method for hammer 3x3 breaking
-    private void BreakHammerArea(int centerX, int centerY)
-    {
-        for (int x = centerX - 1; x <= centerX + 1; x++)
-        {
-            for (int y = centerY - 1; y <= centerY + 1; y++)
-            {
-                if (_gameBoard.IsValidPosition(x, y))
-                {
-                    BlockData blockData = _gameBoard.GetBlockData(x, y);
-                    if (blockData != null && blockData.blockType != BlockType.Empty)
-                    {
-                        if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
-                        _gameBoard.DestroyConnectedBlocks(x, y);
-                    }
-                }
-            }
-        }
-    }
+    // // Helper method for hammer 3x3 breaking
+    // private void BreakHammerArea(int centerX, int centerY)
+    // {
+    //     for (int x = centerX - 1; x <= centerX + 1; x++)
+    //     {
+    //         for (int y = centerY - 1; y <= centerY + 1; y++)
+    //         {
+    //             if (_gameBoard.IsValidPosition(x, y))
+    //             {
+    //                 BlockData blockData = _gameBoard.GetBlockData(x, y);
+    //                 if (blockData != null && blockData.blockType != BlockType.Empty)
+    //                 {
+    //                     if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
+    //                     _gameBoard.DestroyConnectedBlocks(x, y);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     void HandleInput()
     {
@@ -528,7 +518,8 @@ public class PlayerMovement : MonoBehaviour
         if (blockData == null) return false;
 
         // Can move to empty spaces or life items
-        return blockData.blockType == BlockType.Empty || blockData.blockType == BlockType.Life;
+        BlockType bt = blockData.blockType;
+        return bt == BlockType.Empty || bt == BlockType.Life || bt == BlockType.Tool;
     }
 
     private bool IsEmptySpace(Vector3Int position)
