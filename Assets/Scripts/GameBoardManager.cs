@@ -58,7 +58,12 @@ public class GameBoardManager : MonoBehaviour
     {
         float rng = UnityEngine.Random.Range(0.0f, 1.0f);
         int idx;
-        if (firstGame) idx = 1;
+        if (firstGame)
+        {
+            idx = 1;
+            firstGame = false;
+        }
+
         else
         {
             if (rng < chanceEasy) idx = 0;

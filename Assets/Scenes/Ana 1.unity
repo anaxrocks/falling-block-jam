@@ -1198,6 +1198,7 @@ GameObject:
   - component: {fileID: 771869265}
   - component: {fileID: 771869264}
   - component: {fileID: 771869270}
+  - component: {fileID: 771869271}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1285,6 +1286,7 @@ MonoBehaviour:
   dmgLow: 1
   dmgHigh: 5
   blockCollisionDetector: {fileID: 771869265}
+  _animator: {fileID: 0}
 --- !u!212 &771869268
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1381,6 +1383,28 @@ MonoBehaviour:
   pulseSpeed: 2
   enablePulseAnimation: 1
   highScoreTxt: {fileID: 297598031}
+--- !u!95 &771869271
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 771869263}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 80a107dd1442feb458ea3b86bc26a78c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &833443072
 GameObject:
   m_ObjectHideFlags: 0
@@ -2278,11 +2302,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3825da6c2f61745438deb6b33fd9b165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameBoardPrefab: {fileID: 1053220236762184505, guid: ba3c4d263bfe14b28a1ccd62b0286e0e, type: 3}
+  gameBoardPrefabs:
+  - {fileID: 1053220236762184505, guid: ba3c4d263bfe14b28a1ccd62b0286e0e, type: 3}
+  - {fileID: 1053220236762184505, guid: 9c327b13182664a239c1f4811c3c5c1c, type: 3}
+  - {fileID: 1053220236762184505, guid: 6137ad801bf5a4efa890573a87f34853, type: 3}
+  chanceEasy: 0.1
+  chanceMedium: 0.4
+  chanceHard: 0.5
   distanceToLoad: 10
   playerTransform: {fileID: 771869269}
   curBoard: {fileID: 582358140}
   highScore: 0
+  firstGame: 1
 --- !u!4 &1816114697
 Transform:
   m_ObjectHideFlags: 0
