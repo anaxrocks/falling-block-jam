@@ -466,7 +466,8 @@ public class PlayerMovement : MonoBehaviour
         if (blockData == null) return false;
 
         // Can move to empty spaces or life items
-        return blockData.blockType == BlockType.Empty || blockData.blockType == BlockType.Life;
+        BlockType bt = blockData.blockType;
+        return bt == BlockType.Empty || bt == BlockType.Life || bt == BlockType.Tool;
     }
 
     private bool IsEmptySpace(Vector3Int position)

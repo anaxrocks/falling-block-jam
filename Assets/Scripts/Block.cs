@@ -1,6 +1,4 @@
 // Block types enum
-using UnityEditor.ShaderKeywordFilter;
-
 public enum BlockType
 {
     Empty = 0,

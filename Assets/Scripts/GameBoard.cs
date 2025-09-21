@@ -18,7 +18,8 @@ public class GameBoard : MonoBehaviour
     public TileBase lifeItemTile; // Sprite for life items
     public AnimatedTile[] lifeItemAnimated;
     public float chanceOfLifeItem = 0.05f; // 5% chance of generating a life item
-    private int numSpecialBlocks = 4; // Empty, Buffer, Hard, Life
+    [Range(2, 5)]
+    [SerializeField] private int numSpecialBlocks = 5;
     [Header("Tools")]
     public float chanceOfTool = 0.1f; //0.5% chance of generating tool
     public AnimatedTile[] toolTiles;
@@ -31,8 +32,8 @@ public class GameBoard : MonoBehaviour
     public int bufferHeight = 5; //buffer into the boardheight
     private int levelHeight; //boardHeight - bufferHeight
     public float chanceOfHardBlock = 0.08f;
-    // public float blockSize = 1f;
     public float fallSpeed = 2f;
+    public int numberOfColoredBlocksToUse = 5;
 
     [Header("Block Tiles")]
     public TileBase[] blockTiles; // Different colored block tiles
@@ -113,7 +114,7 @@ public class GameBoard : MonoBehaviour
                 }
                 else
                 {
-                    BlockType randomType = (BlockType)UnityEngine.Random.Range(numSpecialBlocks, System.Enum.GetValues(typeof(BlockType)).Length);
+                    BlockType randomType = (BlockType)UnityEngine.Random.Range(numSpecialBlocks, numSpecialBlocks + numberOfColoredBlocksToUse);
                     CreateBlock(x, y, randomType);
                 }
             }
@@ -133,7 +134,7 @@ public class GameBoard : MonoBehaviour
         if (!IsValidPosition(x, y) || blockType == BlockType.Empty) return;
 
         Vector3Int position = new Vector3Int(x, y, 0);
-        TileBase tileToUse = null;
+        TileBase tileToUse;
         blockData[x, -y] = new BlockData(blockType);
         switch (blockType)
         {
@@ -157,7 +158,7 @@ public class GameBoard : MonoBehaviour
 
             default:
 
-                int colorIndex = (int)blockType - numSpecialBlocks;
+                int colorIndex = (int)blockType - numSpecialBlocks + 1;
                 if (colorIndex < 0 || colorIndex >= blockTiles.Length)
                 {
                     Debug.LogError($"Invalid color block index: {colorIndex} for blockType: {blockType}");
@@ -305,7 +306,7 @@ public class GameBoard : MonoBehaviour
                     BlockData block = blockData[dx, -dy];
                     
                     // Skip tools - they cannot be destroyed by hammer
-                    if (block.blockType == BlockType.Tool)
+                    if (block.blockType == BlockType.Tool || block.blockType == BlockType.Life)
                     {
                         Debug.Log($"Skipping tool at ({dx}, {dy}) - tools cannot be destroyed by hammer");
                         continue;
