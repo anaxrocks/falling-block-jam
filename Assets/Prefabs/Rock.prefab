@@ -131,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallSpeed: 5
   damage: 10
-  lifetime: 10
+  lifetime: 20
   rotationSpeed: 90
   hitEffect: {fileID: 0}
   hitSound: {fileID: 0}

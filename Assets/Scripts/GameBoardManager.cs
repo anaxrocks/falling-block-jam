@@ -87,7 +87,6 @@ public class GameBoardManager : MonoBehaviour
         {
             GameBoard gb = activeBoards.Dequeue();
             curBoard = activeBoards.Peek();
-            // player._gameBoard = curBoard;
             Destroy(gb.gameObject);
             destroying = false;
             created = false;
@@ -102,6 +101,7 @@ public class GameBoardManager : MonoBehaviour
         if (player != null)
         {
             player.ResetPlayerState();
+            firstGame = true;
         }
 
         while (activeBoards.Count > 0)

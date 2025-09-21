@@ -47,9 +47,9 @@ public class RockSpawner : MonoBehaviour
         }
     }
     
-    void SpawnRock()
+   void SpawnRock()
     {
-        if (rockPrefab == null || gameBoardManager == null || gameBoardManager.curBoard == null) return;
+        if (rockPrefab == null || gameBoardManager == null || gameBoardManager.curBoard == null || playerCamera == null) return;
         
         GameBoard currentBoard = gameBoardManager.curBoard;
         
@@ -63,16 +63,20 @@ public class RockSpawner : MonoBehaviour
         // CellToWorld gives us the bottom-left corner of the cell, so we need to offset to center
         Vector3 cellSize = currentBoard.grid.cellSize;
         cellCenterWorld.x += cellSize.x * 0.5f; // Move to center of cell horizontally
-        cellCenterWorld.y += cellSize.y * 0.5f; // Move to center of cell vertically
         
-        // Spawn above the board at the exact center of the grid cell
-        Vector3 spawnPosition = new Vector3(cellCenterWorld.x, cellCenterWorld.y + spawnHeight, 0f);
+        // Spawn above the camera instead of above the board
+        float cameraTopY = playerCamera.transform.position.y + (playerCamera.orthographicSize);
+        Vector3 spawnPosition = new Vector3(cellCenterWorld.x, cameraTopY + spawnHeight, 0f);
         
         // Create the rock
         GameObject rock = Instantiate(rockPrefab, spawnPosition, Quaternion.identity);
         
-        // Optional: Add slight random rotation for visual variety
-        rock.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+        // Set initial random rotation only for the sprite child, not the parent
+        Transform spriteChild = rock.transform.Find("RockSprite");
+        if (spriteChild != null)
+        {
+            spriteChild.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+        }
     }
     
     // Call this method to stop spawning (e.g., when game is paused or player dies)
