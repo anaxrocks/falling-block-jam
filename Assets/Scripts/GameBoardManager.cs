@@ -69,7 +69,7 @@ public class GameBoardManager : MonoBehaviour
         {
             GameBoard gb = activeBoards.Dequeue();
             curBoard = activeBoards.Peek();
-            player._gameBoard = curBoard;
+            // player._gameBoard = curBoard;
             Destroy(gb.gameObject);
             destroying = false;
             created = false;
