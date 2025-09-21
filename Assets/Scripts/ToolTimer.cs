@@ -83,4 +83,19 @@ public class ToolTimer : MonoBehaviour
         float timeSinceLastAttack = Time.time - lastAttackTime;
         return Mathf.Max(0f, requiredCooldown - timeSinceLastAttack);
     }
+
+    public void ResetToolTimer()
+    {
+        blocksDestroyed = 0;
+        toolTimer = 0;
+        lastAttackTime = 0f;
+
+        // Make sure player tool is set to None
+        if (player != null)
+        {
+            player.tool = Tool.None;
+        }
+
+        Debug.Log("Tool timer reset");
+    }
 }

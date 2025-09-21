@@ -26,9 +26,17 @@ public class HealthUIController : MonoBehaviour
     private HealthManager healthSystem;
     private bool isLowHealth = false;
     private Coroutine pulseCoroutine;
+    private Vector3 originalScale; // Store the original scale
+    [SerializeField] private Text highScoreTxt;
 
     void Start()
     {
+        // Store the original scale of the health slider
+        if (healthSlider != null)
+        {
+            originalScale = healthSlider.transform.localScale;
+        }
+
         // Find the health system
         healthSystem = FindFirstObjectByType<HealthManager>();
 
@@ -131,49 +139,66 @@ public class HealthUIController : MonoBehaviour
             {
                 StopCoroutine(pulseCoroutine);
                 pulseCoroutine = null;
-
-                // Reset scale
-                if (healthSlider != null)
-                {
-                    healthSlider.transform.localScale = Vector3.one;
-                }
             }
+
+            // Ensure scale is reset to original
+            ResetHealthBarScale();
+        }
+    }
+
+    private void ResetHealthBarScale()
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.transform.localScale = originalScale;
         }
     }
 
     private IEnumerator PulseHealthBar()
     {
-        Vector3 originalScale = healthSlider.transform.localScale;
         float pulseAmount = 0.1f;
 
         while (isLowHealth)
         {
             // Scale up
             float time = 0f;
-            while (time < 0.5f)
+            while (time < 0.5f && isLowHealth) // Check isLowHealth to exit early if needed
             {
                 time += Time.deltaTime * pulseSpeed;
                 float scale = Mathf.Lerp(1f, 1f + pulseAmount, time * 2f);
-                healthSlider.transform.localScale = originalScale * scale;
+                if (healthSlider != null)
+                {
+                    healthSlider.transform.localScale = originalScale * scale;
+                }
                 yield return null;
             }
 
             // Scale down
             time = 0f;
-            while (time < 0.5f)
+            while (time < 0.5f && isLowHealth) // Check isLowHealth to exit early if needed
             {
                 time += Time.deltaTime * pulseSpeed;
                 float scale = Mathf.Lerp(1f + pulseAmount, 1f, time * 2f);
-                healthSlider.transform.localScale = originalScale * scale;
+                if (healthSlider != null)
+                {
+                    healthSlider.transform.localScale = originalScale * scale;
+                }
                 yield return null;
             }
         }
 
-        healthSlider.transform.localScale = originalScale;
+        // Final reset when exiting the loop
+        ResetHealthBarScale();
     }
 
     private void ShowGameOverScreen()
     {
+        ScoreKeeper scoreKeeper = GameObject.FindAnyObjectByType<ScoreKeeper>();
+        if (scoreKeeper.score > GameBoardManager.Instance.highScore)
+        {
+            GameBoardManager.Instance.highScore = scoreKeeper.score;
+        }
+        highScoreTxt.text = GameBoardManager.Instance.highScore.ToString();
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
@@ -201,8 +226,13 @@ public class HealthUIController : MonoBehaviour
             StopCoroutine(pulseCoroutine);
             pulseCoroutine = null;
         }
+
+        // Ensure scale is reset
+        ResetHealthBarScale();
+
         Debug.Log("Game restarted!");
     }
+
     public void ForceUpdateUI()
     {
         if (healthSystem != null)
@@ -213,6 +243,56 @@ public class HealthUIController : MonoBehaviour
 
     public void RestartButton()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log("Restart button pressed - initiating full game reset");
+
+        // Reset health system first
+        if (healthSystem != null)
+        {
+            healthSystem.ResetHealth();
+        }
+
+        // Hide game over panel
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
+
+        // Reset UI state
+        isLowHealth = false;
+        if (pulseCoroutine != null)
+        {
+            StopCoroutine(pulseCoroutine);
+            pulseCoroutine = null;
+        }
+        ResetHealthBarScale();
+
+        // Reset the entire game state through GameBoardManager
+        if (GameBoardManager.Instance != null)
+        {
+            GameBoardManager.Instance.ResetGameState();
+        }
+
+        // Force update UI after reset
+        StartCoroutine(ForceUpdateUIAfterFrame());
+    }
+    private IEnumerator ForceUpdateUIAfterFrame()
+    {
+        // Wait a frame to ensure everything is properly initialized
+        yield return null;
+
+        // Re-find health system if needed (in case objects were recreated)
+        if (healthSystem == null)
+        {
+            healthSystem = FindFirstObjectByType<HealthManager>();
+            if (healthSystem != null)
+            {
+                // Re-subscribe to events
+                healthSystem.OnHealthChanged += UpdateHealthUI;
+                healthSystem.OnPlayerDeath += ShowGameOverScreen;
+            }
+        }
+
+        // Force update the UI
+        ForceUpdateUI();
     }
 }

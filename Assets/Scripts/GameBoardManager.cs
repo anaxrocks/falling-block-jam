@@ -15,6 +15,8 @@ public class GameBoardManager : MonoBehaviour
     private bool destroying = false;
     private bool created = false;
     private PlayerMovement player;
+    public int highScore = 0;
+
     void Awake()
     {
         if (Instance != null)
@@ -28,6 +30,7 @@ public class GameBoardManager : MonoBehaviour
         }
         CreateInitialBoard();
     }
+
     void Start()
     {
         player = FindAnyObjectByType<PlayerMovement>();
@@ -72,6 +75,73 @@ public class GameBoardManager : MonoBehaviour
             created = false;
         }
     }
+
+    // Call this method when player dies to reset the game state
+    public void ResetGameState()
+    {
+        Debug.Log("Starting game state reset...");
+
+        if (player != null)
+        {
+            player.ResetPlayerState();
+        }
+
+        while (activeBoards.Count > 0)
+        {
+            GameBoard board = activeBoards.Dequeue();
+            if (board != null)
+            {
+                Destroy(board.gameObject);
+            }
+        }
+
+        activeBoards.Clear();
+        boardCounter = 0;
+        destroying = false;
+        created = false;
+        curBoard = null;
+
+        CreateInitialBoard();
+
+        if (player == null)
+        {
+            player = FindFirstObjectByType<PlayerMovement>();
+        }
+
+        if (player != null)
+        {
+            player.updateCurBoard(curBoard);
+            player.StartOnTop();
+        }
+
+        ScoreKeeper scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
+        if (scoreKeeper != null)
+        {
+            scoreKeeper.ResetScore();
+        }
+
+        Debug.Log("Game state reset completed!");
+    }
+
+    // Alternative method to reset without creating a new board (if you want to handle board creation elsewhere)
+    public void ClearAllBoards()
+    {
+        while (activeBoards.Count > 0)
+        {
+            GameBoard board = activeBoards.Dequeue();
+            if (board != null)
+            {
+                Destroy(board.gameObject);
+            }
+        }
+
+        activeBoards.Clear();
+        boardCounter = 0;
+        destroying = false;
+        created = false;
+        curBoard = null;
+    }
+
     //Next board loads in after player reaches a threshold
     void CheckForNewBoardLoading()
     {

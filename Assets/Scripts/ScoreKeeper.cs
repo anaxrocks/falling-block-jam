@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class ScoreKeeper : MonoBehaviour
 {
     private GameBoardManager gameBoardManager;
-    private int score;
+    public int score;
     private PlayerMovement player;
     [SerializeField] private Text scoreText; // Optional text display
 
@@ -31,5 +31,22 @@ public class ScoreKeeper : MonoBehaviour
         Vector3Int cur = gameBoardManager.curBoard.WorldToCell(player.transform.position);
         score = (int)Mathf.Max(score, start.y - cur.y);
         scoreText.text = $"Score: {score}";
+    }
+
+    public void ResetScore()
+    {
+        score = 0;
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: 0";
+        }
+
+        // Update starting position reference
+        if (player != null)
+        {
+            startingPos = player.transform.position;
+        }
+
+        Debug.Log("Score reset to 0");
     }
 }

@@ -10,7 +10,7 @@ public class BlockCollisionDetector : MonoBehaviour
     
     private PlayerMovement playerMovement;
     private HealthManager healthSystem;
-    private GameBoard gameBoard;
+    public GameBoard gameBoard;
     private Vector3Int lastPlayerPosition;
     private bool isInvulnerable = false;
     private float lastDamageTime = 0f;

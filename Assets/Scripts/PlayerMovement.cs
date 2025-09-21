@@ -41,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
 
     public int dmgLow = 1;
     public int dmgHigh = 5;
+    public BlockCollisionDetector blockCollisionDetector;
 
     void Awake()
     {
@@ -63,9 +64,10 @@ public class PlayerMovement : MonoBehaviour
         CheckGravity();
     }
 
-    private void InitializePosition()
+    public void InitializePosition()
     {
         _gameBoard = gameBoardManager.curBoard;
+        blockCollisionDetector.gameBoard = gameBoardManager.curBoard;
         Vector3 pos = transform.position;
         _currentGridPosition = _gameBoard.WorldToCell(new Vector3(pos.x - GRID_OFFSET, pos.y - GRID_OFFSET, 0));
         Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
@@ -73,12 +75,30 @@ public class PlayerMovement : MonoBehaviour
         transform.position = _targetWorldPosition;
     }
 
+    public void StartOnTop()
+    {
+        _gameBoard = gameBoardManager.curBoard;
+        blockCollisionDetector.gameBoard = gameBoardManager.curBoard;
+
+        // Start at the top center of the board (y = 0 is the top)
+        int startX = _gameBoard.boardWidth / 2; // Center horizontally
+        int startY = 0; // Top of the board
+
+        // Set player position
+        _currentGridPosition = new Vector3Int(startX, startY, 0);
+        Vector3 corner = _gameBoard.CellToWorld(_currentGridPosition);
+        _targetWorldPosition = new Vector3(corner.x + GRID_OFFSET, corner.y + GRID_OFFSET, 0);
+        transform.position = _targetWorldPosition;
+
+        Debug.Log($"Player initialized at grid position: {_currentGridPosition}, world position: {_targetWorldPosition}");
+    }
+
     void HandleAttack()
     {
         if (!InputManager.attackPressed) return;
 
         // Check if attack is on cooldown
-        if (!toolTimer.CanAttack()) 
+        if (!toolTimer.CanAttack())
         {
             Debug.Log($"Attack on cooldown! Time remaining: {toolTimer.GetAttackCooldownRemaining():F2}s");
             return;
@@ -86,10 +106,10 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3Int attackDirection = GetAttackDirection();
         Vector3Int targetPos = _currentGridPosition + attackDirection;
-        
+
         // Attempt to break block
         bool blockBroken = BreakBlock(targetPos.x, targetPos.y);
-        
+
         // Only trigger cooldown if we actually attempted an attack
         // (even if no block was broken, we still "used" our attack)
         toolTimer.OnAttackMade();
@@ -98,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3Int GetAttackDirection()
     {
         Vector2 input = InputManager.movement;
-        
+
         // Check movement input first
         if (input.magnitude > MOVEMENT_THRESHOLD)
         {
@@ -135,12 +155,12 @@ public class PlayerMovement : MonoBehaviour
     bool BreakBlock(int x, int y)
     {
         if (!_gameBoard.IsValidPosition(x, y)) return false;
-        
+
         BlockData blockData = _gameBoard.GetBlockData(x, y);
         if (blockData != null && blockData.blockType != BlockType.Empty)
         {
             if (blockData.blockType == BlockType.Buffer) isBufferBroken = true;
-             if (blockData.blockType == BlockType.Hard)
+            if (blockData.blockType == BlockType.Hard)
             {
                 healthSystem.TakeDamage(dmgHigh);
             }
@@ -148,7 +168,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 healthSystem.TakeDamage(dmgLow);
             }
-            
+
             // Handle different tool effects
             if (tool == Tool.Hammer)
             {
@@ -160,7 +180,7 @@ public class PlayerMovement : MonoBehaviour
                 // Normal or pickaxe breaking
                 _gameBoard.DestroyConnectedBlocks(x, y);
             }
-            
+
             toolTimer.ToolTimerTick();
 
             // Reset auto-jump waiting if we break a block
@@ -417,7 +437,7 @@ public class PlayerMovement : MonoBehaviour
         {
             gameBoardManager.DestroyGameBoard();
             InitializePosition();
-            isBufferBroken = false;            
+            isBufferBroken = false;
         }
 
         if (CanMoveToPosition(belowPos))
@@ -453,4 +473,32 @@ public class PlayerMovement : MonoBehaviour
     {
         return CanMoveToPosition(position);
     }
+    
+    public void ResetPlayerState()
+{
+    Debug.Log("Resetting player state...");
+    
+    // Reset tool state
+    tool = Tool.None;
+    
+    // Reset movement state
+    _isMoving = false;
+    _lastMoveTime = 0f;
+    _lastMoveDirection = Vector3Int.zero;
+    _isContinuousMovement = false;
+    
+    // Reset buffer state
+    isBufferBroken = false;
+    
+    // Reset auto-jump state
+    ResetAutoJumpState();
+    
+    // Reset tool timer if it exists
+    if (toolTimer != null)
+    {
+        toolTimer.ResetToolTimer();
+    }
+    
+    Debug.Log("Player state reset completed");
+}
 }
